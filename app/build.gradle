@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    id 'org.jetbrains.kotlin.kapt'
 }
 
 android {
@@ -46,7 +47,12 @@ android {
 }
 
 dependencies {
+    var roomV = "2.4.2"
+    implementation ("androidx.room:room-runtime:$roomV")
+    annotationProcessor("androidx.room:room-compiler:$roomV")
 
+    kapt("androidx.room:room-compiler:$roomV")
+    implementation("androidx.room:room-ktx:$roomV")
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation "androidx.compose.ui:ui:$compose_version"
     implementation "androidx.compose.material:material:$compose_version"
