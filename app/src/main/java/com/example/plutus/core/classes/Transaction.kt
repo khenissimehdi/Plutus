@@ -3,10 +3,10 @@ package com.example.plutus.core.classes
 import androidx.annotation.NonNull
 import androidx.room.*
 
-@Entity(tableName = "transactions", foreignKeys = [
+@Entity(tableName = "transactions", /*foreignKeys = [
     ForeignKey(entity = Action::class, parentColumns = ["actionId"], childColumns = ["actionIdT"]),
     ForeignKey(entity = Booklet::class, parentColumns = ["bookletId"], childColumns = ["bookletIdT"])
-])
+]*/)
 class Transaction {
 
     @PrimaryKey(autoGenerate = true)
@@ -19,10 +19,10 @@ class Transaction {
     var date: String = "";
     @ColumnInfo(name = "price")
     var price: Int = 0;
-    @ColumnInfo() @NonNull()
-    var actionIdT: Int = 0
-    @ColumnInfo() @NonNull()
-    var bookletIdT: Int = 0
+   // @ColumnInfo() @NonNull()
+   // var actionIdT: Int = 0
+  //  @ColumnInfo() @NonNull()
+  //  var bookletIdT: Int = 0
 
     constructor(){}
 

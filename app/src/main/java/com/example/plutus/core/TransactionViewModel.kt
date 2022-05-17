@@ -1,24 +1,49 @@
 package com.example.plutus.core
 
 import androidx.lifecycle.*
-import com.example.plutus.core.classes.Possede
+import com.example.plutus.Graph
 import com.example.plutus.core.classes.Transaction
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+
 import kotlinx.coroutines.launch
 
-class TransactionViewModel(private val repo: TransactionRepo): ViewModel() {
-    val allTransaction: LiveData<List<Possede>> = repo.allTransaction.asLiveData()
 
-    fun insert(transaction: Transaction) = viewModelScope.launch {
-        repo.insert(transaction = transaction)
+@OptIn(InternalCoroutinesApi::class)
+class TransactionViewModel(private val transactionRepo: TransactionRepo = Graph.categoryRepository) : ViewModel() {
+    private val _state = MutableStateFlow(HomeViewState())
+    private val _selectedCategory = MutableStateFlow(Transaction())
+
+    val state: StateFlow<HomeViewState>
+        get() = _state
+
+    fun onCategorySelected(category: Transaction) {
+        _selectedCategory.value = category
     }
-}
 
-class WordViewModelFactory(private val repository: TransactionRepo) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(TransactionViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return TransactionViewModel(repository) as T
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
+                print("helo databae")
+
         }
-        throw IllegalArgumentException("Unknown ViewModel class")
+
+        loadCategoriesFromDb()
+    }
+
+    private fun loadCategoriesFromDb() {
+        val list = mutableListOf(
+            Transaction(2,"helo","hello",100)
+
+        )
+        viewModelScope.launch(Dispatchers.IO) {
+            list.forEach { category -> transactionRepo.insert(category) }
+        }
     }
 }
+
+data class HomeViewState(
+    val categories: List<Transaction> = emptyList(),
+    val selectedCategory: Transaction? = null
+)
