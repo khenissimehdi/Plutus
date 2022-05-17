@@ -4,16 +4,16 @@ import android.content.Context
 import androidx.room.*
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.internal.synchronized
-import com.example.plutus.core.dao.Transaction
+import com.example.plutus.core.dao.TransactionDao
 
 @Database(
-    entities = [Transaction::class],
+    entities = [TransactionDao::class],
     version = 1,
     exportSchema = true
 )
 abstract class PlutusRoomDatabase : RoomDatabase() {
 
-    abstract fun noteDao(): Transaction
+    abstract fun noteDao(): TransactionDao
     companion object {
 
         @Volatile

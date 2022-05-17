@@ -1,11 +1,12 @@
 package com.example.plutus.core.classes
 
 import androidx.annotation.NonNull
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.PrimaryKey
+import androidx.room.*
 
-@Entity(tableName = "transactions")
+@Entity(tableName = "transactions", foreignKeys = [
+    ForeignKey(entity = Action::class, parentColumns = ["actionId"], childColumns = ["actionIdT"]),
+    ForeignKey(entity = Booklet::class, parentColumns = ["bookletId"], childColumns = ["bookletIdT"])
+])
 class Transaction {
 
     @PrimaryKey(autoGenerate = true)
@@ -18,6 +19,15 @@ class Transaction {
     var date: String = "";
     @ColumnInfo(name = "price")
     var price: Int = 0;
+    @ColumnInfo() @NonNull()
+    var actionIdT: Int = 0
+    @ColumnInfo() @NonNull()
+    var bookletIdT: Int = 0
+    @Relation(
+        parentColumn = "transactionId",
+        entityColumn = "categoryId",
+        associateBy = Junction(Possede::class))
+    var categories: List<Category> = arrayListOf();
 
     constructor(){}
 

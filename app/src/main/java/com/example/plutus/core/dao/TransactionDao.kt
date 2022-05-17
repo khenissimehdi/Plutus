@@ -4,8 +4,9 @@ import androidx.lifecycle.LiveData
 import androidx.room.Insert
 import androidx.room.Query
 import com.example.plutus.core.classes.Transaction
+import kotlinx.coroutines.flow.Flow
 
-interface Transaction {
+interface TransactionDao {
 
     @Insert
     fun insertTransaction(transactionDao: Transaction)
@@ -17,5 +18,6 @@ interface Transaction {
     fun deleteTransactionById(id: Int)
 
     @Query("SELECT * FROM transactions")
-    fun getAllTransaction(): LiveData<List<Transaction>>
+    fun getAllTransaction(): Flow<List<Transaction>>
+
 }
