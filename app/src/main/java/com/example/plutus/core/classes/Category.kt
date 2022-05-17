@@ -12,21 +12,14 @@ class Category {
     var id: Int = 0
     @ColumnInfo(name = "title")
     var title: String = ""
-    @Relation(
-        parentColumn = "categoryId",
-        entityColumn = "transactionId",
-        associateBy = Junction(Possede::class)
-    )
-    var transactions: List<Transaction> = arrayListOf();
+
 
     constructor(){}
-    constructor(id: Int, title: String, transactions: List<Transaction>) {
+    constructor(id: Int, title: String) {
         this.id = id
         this.title = title
-        this.transactions = transactions
     }
-    constructor(title: String, transactions: List<Transaction>) {
+    constructor(title: String) {
         this.title = title
-        this.transactions = transactions
     }
 }

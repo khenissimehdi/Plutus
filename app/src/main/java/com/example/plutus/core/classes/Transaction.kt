@@ -23,11 +23,6 @@ class Transaction {
     var actionIdT: Int = 0
     @ColumnInfo() @NonNull()
     var bookletIdT: Int = 0
-    @Relation(
-        parentColumn = "transactionId",
-        entityColumn = "categoryId",
-        associateBy = Junction(Possede::class))
-    var categories: List<Category> = arrayListOf();
 
     constructor(){}
 
