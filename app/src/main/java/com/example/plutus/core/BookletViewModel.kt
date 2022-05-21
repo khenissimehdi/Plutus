@@ -1,6 +1,5 @@
 package com.example.plutus.core
 
-import android.util.Log
 import androidx.lifecycle.*
 import com.example.plutus.Graph
 import com.example.plutus.core.classes.*
@@ -9,32 +8,37 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
 
 import kotlinx.coroutines.launch
 
 
 @OptIn(InternalCoroutinesApi::class)
-class TransactionViewModel(private val transactionRepo: TransactionRepo = Graph.categoryRepository) : ViewModel() {
+class BookletViewModel(private val bookletRepo: BookletRepo = Graph.bookletRepository) : ViewModel() {
     private val _state = MutableStateFlow(HomeViewState())
-    private val _selectedCategory = MutableStateFlow(Transaction())
+    private val _selectedCategory = MutableStateFlow(Booklet())
 
     val state: StateFlow<HomeViewState>
         get() = _state
 
-    fun onCategorySelected(category: Transaction) {
+    fun onCategorySelected(category: Booklet) {
         _selectedCategory.value = category
     }
 
     init {
-        viewModelScope.launch {
-             transactionRepo.allTransaction().collect {
-                 _state.value = HomeViewState(transactions = it)
-             }
+        viewModelScope.launch(Dispatchers.IO) {
+                print("helo databae")
+        }
+
+        loadCategoriesFromDb()
+    }
+
+    private fun loadCategoriesFromDb() {
+        val list = mutableListOf(
+            Booklet(2,"food","0/0/0")
+        )
+
+        viewModelScope.launch(Dispatchers.IO) {
+            list.forEach { category -> bookletRepo.insert(category) }
         }
     }
 }
-
-data class HomeViewState(
-    val transactions: List<Possede> = emptyList(),
-)

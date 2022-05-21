@@ -3,7 +3,9 @@ package com.example.plutus.core.dao
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Transaction
 import com.example.plutus.core.classes.Category
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface CategoryDao {
@@ -11,11 +13,12 @@ interface CategoryDao {
     fun insertCategory(category: Category)
 
     @Query("SELECT * FROM  category WHERE categoryId = :id")
-    fun findCategById(id: Int): Category
+    fun findCategoryById(id: Int): Category
 
     @Query("DELETE FROM category WHERE categoryId = :id")
-    fun deleteTransactionById(id: Int)
+    fun deleteCategoryById(id: Int)
+
 
     @Query("SELECT * FROM category")
-    fun getAllTransaction(): List<Category>
+    fun getAllCategories(): Flow<List<Category>>
 }

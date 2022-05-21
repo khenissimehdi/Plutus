@@ -3,19 +3,26 @@ package com.example.plutus.core.dao
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Transaction
+import com.example.plutus.core.classes.BookLetAndTransactions
 import com.example.plutus.core.classes.Booklet
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface BookletDao {
     @Insert
-    fun insertCategory(booklet: Booklet)
+    fun insertBooklet(booklet: Booklet)
 
     @Query("SELECT * FROM  booklet WHERE bookletId = :id")
     fun findBookletById(id: Int): Booklet
 
     @Query("DELETE FROM booklet WHERE bookletId = :id")
-    fun deleteTransactionById(id: Int)
+    fun deleteBookletById(id: Int)
+
+    @Transaction
+    @Query("SELECT * FROM booklet")
+    fun getBookletAndTransactions(): Flow<List<BookLetAndTransactions>>
 
     @Query("SELECT * FROM booklet")
-    fun getAllTransaction(): List<Booklet>
+    fun getAllBookLet(): Flow<List<Booklet>>
 }

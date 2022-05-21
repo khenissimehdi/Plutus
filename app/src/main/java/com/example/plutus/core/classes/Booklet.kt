@@ -10,7 +10,7 @@ class Booklet {
     @PrimaryKey(autoGenerate = true)
     @NonNull
     @ColumnInfo(name = "bookletId")
-    var id: Int = 0;
+    var bookletId: Int = 0;
     @ColumnInfo(name = "title")
     var title: String = "";
     @ColumnInfo(name = "date")
@@ -19,7 +19,7 @@ class Booklet {
     constructor(){}
 
     constructor(id: Int, title: String, date: String) {
-        this.id = id;
+        this.bookletId = id;
         this.title = title;
         this.date = date;
     }
