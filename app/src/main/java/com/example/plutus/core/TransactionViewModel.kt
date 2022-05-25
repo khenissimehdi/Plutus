@@ -25,6 +25,10 @@ class TransactionViewModel(private val transactionRepo: TransactionRepo = Graph.
     fun onCategorySelected(category: Transaction) {
         _selectedCategory.value = category
     }
+    suspend fun insert(title: String, date: String, price: Int, actionId: Int, bookletId: Int, categoryId: Int) {
+            val transaction = Transaction(title, date, price, actionId, bookletId)
+            transactionRepo.insertTransactionGategAndAction(transaction = transaction, categoryId = categoryId)
+    }
 
     init {
         viewModelScope.launch {

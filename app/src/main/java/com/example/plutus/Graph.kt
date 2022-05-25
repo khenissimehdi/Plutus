@@ -47,8 +47,8 @@ object Graph {
         )
     }
     fun provide(context: Context) {
-        database = Room.databaseBuilder(context, PlutusRoomDatabase::class.java, "plutus.db").build()
-
+        database = Room.databaseBuilder(context, PlutusRoomDatabase::class.java, "plutus2.db").build()
+       // database.clearAllTables()
     }
 
 
@@ -62,13 +62,14 @@ object Graph {
         var relation =  PossedeCrossRef(1,1)
         var ac = database.actionDao()
         CoroutineScope(Dispatchers.IO).launch {
-           t.getAllTransaction().collect {
+         //  database.clearAllTables()
+            /* t.getAllTransaction().collect {
                Log.i("hel", it.size.toString())
-           }
+           }*/
 
-          //  c.insertCategory(categ)
-          //  t.insert(PossedeCrossRef(2,1))
-           // t.insertTransaction(Transaction("Things","today",2000,2,0))
+            c.insertCategory(categ)
+           t.insert(PossedeCrossRef(2,1))
+            t.insertTransaction(Transaction("Things","today",2000,2,0))
 
           /*  ac.getTransactionsBindToAction().collect {
                 if(!it.isEmpty()) {

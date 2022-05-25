@@ -9,11 +9,11 @@ class Transaction {
     @PrimaryKey(autoGenerate = true)
     @NonNull
     @ColumnInfo(name = "transactionId")
-    var id: Int = 0;
+    var id: Int = 0
     @ColumnInfo(name = "title")
-    var title: String = "";
+    var title: String = ""
     @ColumnInfo(name = "date")
-    var date: String = "";
+    var date: String = ""
     @ColumnInfo(name = "price")
     var price: Int = 0;
     @ColumnInfo(name = "actionIdT")

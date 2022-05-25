@@ -12,14 +12,13 @@ import kotlinx.coroutines.flow.Flow
 interface TransactionDao {
 
     @Insert
-    fun insertTransaction(transactionDao: Transaction)
+    fun insertTransaction(transaction: Transaction): Long
 
     @Query("SELECT * FROM  transactions WHERE transactionId = :id")
     fun findTransactionById(id: Int): Transaction
 
     @Query("DELETE FROM transactions WHERE transactionId = :id")
     fun deleteTransactionById(id: Int)
-
 
     @Insert
     fun insert(join: PossedeCrossRef)
