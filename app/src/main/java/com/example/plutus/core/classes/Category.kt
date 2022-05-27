@@ -9,13 +9,13 @@ class Category {
     @PrimaryKey(autoGenerate = true)
     @NonNull
     @ColumnInfo(name = "categoryId")
-    var id: Int = 0
+    var id: Long = 0
     @ColumnInfo(name = "title")
     var title: String = ""
 
 
     constructor(){}
-    constructor(id: Int, title: String) {
+    constructor(id: Long, title: String) {
         this.id = id
         this.title = title
     }

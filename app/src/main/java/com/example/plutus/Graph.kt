@@ -1,13 +1,11 @@
 package com.example.plutus
 import android.content.Context
-import android.util.Log
 import androidx.room.Room
 import com.example.plutus.core.ActionRepo
 import com.example.plutus.core.BookletRepo
 import com.example.plutus.core.CategoryRepo
 import com.example.plutus.core.TransactionRepo
 import com.example.plutus.core.classes.*
-import com.example.plutus.core.dao.CategoryDao
 import com.example.plutus.db.PlutusRoomDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
