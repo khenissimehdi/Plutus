@@ -14,12 +14,17 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -36,6 +41,7 @@ import com.example.plutus.core.classes.Transaction
 import com.example.plutus.ui.theme.PlutusTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 
@@ -45,16 +51,14 @@ class MainActivity : ComponentActivity() {
         setContent {
             var selected : Category = Category(1,"1")
 
-            val list = ArrayList<Category>()
-            for(i in 1..10){
-                list.add(Category(i.toLong(),i.toString()))
-            }
-            val transactions = ArrayList<Transaction>()
-            for(i in 1..10){
-                transactions.add(Transaction(i,"Transaction n°$i","28/11/1998",5,5,1))
-            }
             val navController: NavHostController = rememberNavController()
 
+            val viewModel: TransactionViewModel = viewModel()
+            val viewState by viewModel.state.collectAsState()
+/*
+            GlobalScope.launch(Dispatchers.Main) {
+                viewModel.insert("new Trans", "05-27-2022", 400, 1, 1, 1);
+            }*/
             PlutusTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
@@ -70,17 +74,19 @@ class MainActivity : ComponentActivity() {
                         composable(route = "home") {
                             HomeContent(
                                 selectedCategory2 = selected,
-                                categories = list,
-                                transactions = transactions,
+
                                 onCategorySelected = {e -> selected =e},
                                 navController = navController
                             )
+                        }
+                        composable(route = "addTransaction") {
+                            addingTransaction(navController = navController)
                         }
                         composable("transaction/{id}") { backStackEntry ->
                             val id = backStackEntry.arguments?.getString("id")?.toInt()
                             if(id != null){
                                 Log.i(ContentValues.TAG,"id: ${id-1}")
-                                ShowTransaction(transactions[id-1])
+                                ShowTransaction(viewState.transactions.get(id-1).transaction)
                             }}
 
                     }
@@ -90,6 +96,70 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@Composable
+fun addingTransaction(viewModel: TransactionViewModel = viewModel() , navController: NavController){
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(text = "Adding transaction") },
+                navigationIcon = if (navController.previousBackStackEntry != null) {
+                    {
+                        IconButton(onClick = { navController.navigateUp() }) {
+                            Icon(
+                                imageVector = Icons.Filled.ArrowBack,
+                                contentDescription = "Back"
+                            )
+                        }
+                    }
+                } else {
+                    null
+                }
+
+            )
+        },
+        content = {
+            var text by remember { mutableStateOf(TextFieldValue("")) }
+
+            var price by remember { mutableStateOf(TextFieldValue("")) }
+
+            Column(modifier = Modifier.padding(50.dp)) {
+                OutlinedTextField(
+                    value = text,
+                    onValueChange = { newText ->
+                        text = newText
+                    },
+                    label = { Text(text = "Title") },
+
+                    )
+                OutlinedTextField(
+                    value = price,
+                    onValueChange = { newText ->
+                        price = newText
+                    },keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    label = { Text(text = "Price") },
+
+                    )
+                Button(modifier = Modifier.padding(20.dp)
+                    ,onClick = {
+                        if(text.text.isNotEmpty()){
+                            CoroutineScope(Dispatchers.IO).launch {
+                            viewModel.insert(title = text.text,"today", price.text.toInt(),5,3,7);
+                            }
+                            navController.navigate("home")
+                        }
+                    }) {
+                    Text(text = "ADD")
+                }
+            }
+
+
+
+
+
+        }
+    )
+}
+
 @SuppressLint("CoroutineCreationDuringComposition")
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -97,7 +167,7 @@ fun Greeting(name: String, viewModel: TransactionViewModel = viewModel() ) {
 
     val viewState by viewModel.state.collectAsState()
 
-    
+
 
     if (!viewState.transactions.isEmpty()) {
         LazyColumn {
@@ -118,7 +188,9 @@ fun Greeting(name: String, viewModel: TransactionViewModel = viewModel() ) {
            
         }
     }
-    Button(modifier = Modifier.size(10.dp).height(10.dp), onClick = {
+    Button(modifier = Modifier
+        .size(10.dp)
+        .height(10.dp), onClick = {
         CoroutineScope(Dispatchers.IO).launch {
             viewModel.insert(title = "ThinkPad","today", 80,5,3,7);
 
@@ -145,8 +217,6 @@ fun DefaultPreview() {
 @Composable
 fun HomeContent(
     selectedCategory2: Category,
-    categories: List<Category>,
-    transactions : List<Transaction>,
     onCategorySelected: (Category) -> Unit,
     navController: NavController,
 ) {
@@ -162,7 +232,7 @@ fun HomeContent(
         modifier = Modifier.padding(bottom = 24.dp),
         floatingActionButton = {
             FloatingActionButton(
-                onClick = {result.value = "FAB clicked"},
+                onClick = {navController.navigate("addTransaction")},
                 shape = fabShape,
                 backgroundColor = Color(0xFFFF8C00)
             ) {
@@ -218,18 +288,39 @@ fun HomeContent(
                 backgroundColor = appBarColor,
             )
 
-            CategoryTabs(
+            TotalBalance()
+
+
+/*            CategoryTabs(
                 categories = categories,
                 selectedCategory = selectedCategory.value,
                 onCategorySelected = {e -> selectedCategory.value = e},
-            )
+            )*/
 
-            TransactionGrid(transactions,navController)
+            TransactionGrid(navController)
 
 //            CategoryPayment(
 //                modifier = Modifier.fillMaxSize()
 //            )
         }
+    }
+}
+
+@Composable
+private fun TotalBalance(){
+    Card(
+        shape = RoundedCornerShape(4.dp), modifier = Modifier.padding(8.dp),
+        backgroundColor = Color.LightGray
+    ) {
+        // The Text composable is pre-defined by the Compose UI library; you can use this
+        // composable to render text on the screen
+        Text(
+            text = "Render", modifier = Modifier.padding(16.dp),
+            style = TextStyle(
+                fontSize = 16.sp,
+                fontFamily = FontFamily.Serif
+            )
+        )
     }
 }
 
@@ -240,8 +331,8 @@ private fun HomeAppBar(
     TopAppBar(
         title = {
             Text(
-                text = "Salut",
-                color = MaterialTheme.colors.primary,
+                text = "Plutos",
+                color = MaterialTheme.colors.secondary,
                 modifier = Modifier
                     .padding(start = 4.dp)
                     .heightIn(max = 24.dp)
@@ -315,34 +406,41 @@ private fun ChoiceChipContent(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun TransactionGrid(transactions: List<Transaction>,navController: NavController) {
+fun TransactionGrid(navController: NavController, viewModel: TransactionViewModel = viewModel()) {
     var infoSelect: Int by remember {
         mutableStateOf(0)
     }
+    val viewState by viewModel.state.collectAsState()
 
-    LazyVerticalGrid(
-        cells = GridCells.Fixed(1)
-    ) {
+    if (!viewState.transactions.isEmpty()) {
+        LazyVerticalGrid(
+            cells = GridCells.Fixed(1)
+        ) {
 
-        items(transactions.size) { index ->
+            items(viewState.transactions) { item ->
 
-            var transaction = transactions[index];
+                item.transaction.title;
 
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(15.dp)
-                    .clickable {  navController.navigate("transaction/${transaction.id}") },
-                elevation = 10.dp
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(15.dp)
+                        .clickable { navController.navigate("transaction/${item.transaction.id}") },
+                    elevation = 10.dp
 
-            ) {
-                Column(
-                    modifier = Modifier.padding(15.dp)
                 ) {
-                    Text(text = "${transaction.title}",
-                        style = MaterialTheme.typography.body1,)
-                    Text(text = "${transaction.price} €",
-                        style = MaterialTheme.typography.body1,)
+                    Column(
+                        modifier = Modifier.padding(15.dp)
+                    ) {
+                        Text(
+                            text = "${item.transaction.title}",
+                            style = MaterialTheme.typography.body1,
+                        )
+                        Text(
+                            text = "${item.transaction.price} €",
+                            style = MaterialTheme.typography.body1,
+                        )
+                    }
                 }
             }
         }

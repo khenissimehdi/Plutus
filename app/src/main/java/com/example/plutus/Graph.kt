@@ -1,5 +1,6 @@
 package com.example.plutus
 import android.content.Context
+import android.util.Log
 import androidx.room.Room
 import com.example.plutus.core.ActionRepo
 import com.example.plutus.core.BookletRepo
@@ -61,11 +62,11 @@ object Graph {
         var ac = database.actionDao()
         CoroutineScope(Dispatchers.IO).launch {
          //  database.clearAllTables()
-            /* t.getAllTransaction().collect {
+             t.getAllTransaction().collect {
                Log.i("hel", it.size.toString())
-           }*/
+           }
 
-            c.insertCategory(categ)
+            //c.insertCategory(categ)
            t.insert(PossedeCrossRef(2,1))
             t.insertTransaction(Transaction("Things","today",2000,2,0))
 
