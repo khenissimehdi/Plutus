@@ -54,21 +54,22 @@ object Graph {
     // TEST FUNC
     fun pop() {
 
-       var booklet =  database.bookletDao()
-        var t = database.noteDao()
+        var booklet =  database.bookletDao()
+      /*  var t = database.noteDao()
         var c = database.categoryDao()
         var categ = Category(1,"Meca")
         var relation =  PossedeCrossRef(1,1)
-        var ac = database.actionDao()
+        var ac = database.actionDao()*/
         CoroutineScope(Dispatchers.IO).launch {
+            booklet.insertBooklet(Booklet("Car","today"))
          //  database.clearAllTables()
-             t.getAllTransaction().collect {
+         /*    t.getAllTransaction().collect {
                Log.i("hel", it.size.toString())
            }
 
             //c.insertCategory(categ)
-           t.insert(PossedeCrossRef(2,1))
-            t.insertTransaction(Transaction("Things","today",2000,2,0))
+            t.insert(PossedeCrossRef(2,1))
+            t.insertTransaction(Transaction("Things","today",2000,2,0))*/
 
           /*  ac.getTransactionsBindToAction().collect {
                 if(!it.isEmpty()) {

@@ -22,4 +22,16 @@ class TransactionRepo(private val transactionDao: TransactionDao) {
         var id = transactionDao.insertTransaction(transaction = transaction)
         transactionDao.insert(join = PossedeCrossRef(transactionId = id.toInt(), categoryId = categoryId))
     }
+
+    @Suppress("RedundantSuspendModifier")
+    @WorkerThread
+    suspend fun getTransactionById(id: Int): Transaction {
+        return transactionDao.findTransactionById(id)
+    }
+
+    @Suppress("RedundantSuspendModifier")
+    @WorkerThread
+    suspend fun updateById(transaction: Transaction) {
+        transactionDao.update(transaction = transaction)
+    }
 }

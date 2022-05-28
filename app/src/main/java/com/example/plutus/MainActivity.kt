@@ -35,6 +35,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.plutus.core.BookletViewModel
 import com.example.plutus.core.TransactionViewModel
 import com.example.plutus.core.classes.Category
 import com.example.plutus.core.classes.Transaction
@@ -43,6 +44,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+
 
 
 class MainActivity : ComponentActivity() {
@@ -79,8 +81,24 @@ class MainActivity : ComponentActivity() {
                                 navController = navController
                             )
                         }
+                        composable(route = "transactions/{id}") {
+                            val id = it.arguments?.getString("id")?.toInt()
+                            if(id != null) {
+                                TransactionGrid(navController = navController, id = id)
+                            }
+
+                        }
                         composable(route = "addTransaction") {
                             addingTransaction(navController = navController)
+                        }
+                        composable(route = "updateTransaction/{id}") {
+                            val id = it.arguments?.getString("id")?.toInt()
+                            if(id != null) {
+                                updateTransaction(navController = navController, id = id)
+                            }
+                        }
+                        composable(route = "booklets") {
+                            BookletGrid(navController = navController)
                         }
                         composable("transaction/{id}") { backStackEntry ->
                             val id = backStackEntry.arguments?.getString("id")?.toInt()
@@ -95,7 +113,68 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+@Composable
+fun updateTransaction(viewModel: TransactionViewModel = viewModel() , navController: NavController, id: Int) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(text = "Adding transaction") },
+                navigationIcon = if (navController.previousBackStackEntry != null) {
+                    {
+                        IconButton(onClick = { navController.navigateUp() }) {
+                            Icon(
+                                imageVector = Icons.Filled.ArrowBack,
+                                contentDescription = "Back"
+                            )
+                        }
+                    }
+                } else {
+                    null
+                }
 
+            )
+        },
+        content = {
+            var text by remember { mutableStateOf(TextFieldValue("")) }
+
+            var price by remember { mutableStateOf(TextFieldValue("")) }
+
+            Column(modifier = Modifier.padding(50.dp)) {
+                OutlinedTextField(
+                    value = text,
+                    onValueChange = { newText ->
+                        text = newText
+                    },
+                    label = { Text(text = "Title") },
+
+                    )
+                OutlinedTextField(
+                    value = price,
+                    onValueChange = { newText ->
+                        price = newText
+                    },keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    label = { Text(text = "Price") },
+
+                    )
+                Button(modifier = Modifier.padding(20.dp)
+                    ,onClick = {
+                        if(text.text.isNotEmpty()){
+                            CoroutineScope(Dispatchers.IO).launch {
+                                var transaction= viewModel.getTransactionById(id)
+                                transaction.title = text.text
+                                transaction.price = price.text.toInt()
+                                viewModel.updateById(transaction)
+                            }
+                            navController.navigate("home")
+                        }
+                    }) {
+                    Text(text = "ADD")
+                }
+            }
+
+        }
+    )
+}
 @Composable
 fun addingTransaction(viewModel: TransactionViewModel = viewModel() , navController: NavController){
     Scaffold(
@@ -214,6 +293,7 @@ fun DefaultPreview() {
 }
 
 
+
 @Composable
 fun HomeContent(
     selectedCategory2: Category,
@@ -224,15 +304,13 @@ fun HomeContent(
     val result = remember { mutableStateOf("") }
     val selectedItem = remember { mutableStateOf("upload") }
     val fabShape = RoundedCornerShape(50)
-
-
-
-
+    
     Scaffold(
         modifier = Modifier.padding(bottom = 24.dp),
         floatingActionButton = {
+            
             FloatingActionButton(
-                onClick = {navController.navigate("addTransaction")},
+                onClick = {    navController.navigate("addTransaction") },
                 shape = fabShape,
                 backgroundColor = Color(0xFFFF8C00)
             ) {
@@ -240,7 +318,7 @@ fun HomeContent(
             }
         },
         isFloatingActionButtonDocked = true,
-        floatingActionButtonPosition = FabPosition.Center,
+        floatingActionButtonPosition = FabPosition.End,
         bottomBar = {
             BottomAppBar(
                 cutoutShape = fabShape,
@@ -253,7 +331,6 @@ fun HomeContent(
                             label = { Text(text = "Home")},
                             selected = selectedItem.value == "Home",
                             onClick = {
-                                result.value = "Favorite icon clicked"
                                 selectedItem.value = "Home"
                             },
                             alwaysShowLabel = false
@@ -268,7 +345,6 @@ fun HomeContent(
                             label = { Text(text = "Info")},
                             selected = selectedItem.value == "Info",
                             onClick = {
-                                result.value = "Upload icon clicked"
                                 selectedItem.value = "Info"
                             },
                             alwaysShowLabel = false
@@ -296,8 +372,8 @@ fun HomeContent(
                 selectedCategory = selectedCategory.value,
                 onCategorySelected = {e -> selectedCategory.value = e},
             )*/
-
-            TransactionGrid(navController)
+            BookletGrid(navController = navController)
+            //TransactionGrid(navController)
 
 //            CategoryPayment(
 //                modifier = Modifier.fillMaxSize()
@@ -406,18 +482,19 @@ private fun ChoiceChipContent(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun TransactionGrid(navController: NavController, viewModel: TransactionViewModel = viewModel()) {
+fun TransactionGrid(navController: NavController, viewModel: TransactionViewModel = viewModel(), id: Int) {
     var infoSelect: Int by remember {
         mutableStateOf(0)
     }
     val viewState by viewModel.state.collectAsState()
 
     if (!viewState.transactions.isEmpty()) {
+        var transactionByBookletId = viewState.transactions.filter { it.transaction.bookletIdT == id }
         LazyVerticalGrid(
             cells = GridCells.Fixed(1)
         ) {
 
-            items(viewState.transactions) { item ->
+            items(transactionByBookletId) { item ->
 
                 item.transaction.title;
 
@@ -425,7 +502,7 @@ fun TransactionGrid(navController: NavController, viewModel: TransactionViewMode
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(15.dp)
-                        .clickable { navController.navigate("transaction/${item.transaction.id}") },
+                        .clickable { navController.navigate("updateTransaction/${item.transaction.id}") },
                     elevation = 10.dp
 
                 ) {
@@ -438,6 +515,50 @@ fun TransactionGrid(navController: NavController, viewModel: TransactionViewMode
                         )
                         Text(
                             text = "${item.transaction.price} €",
+                            style = MaterialTheme.typography.body1,
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun BookletGrid(navController: NavController, viewModel: BookletViewModel = viewModel()) {
+    var infoSelect: Int by remember {
+        mutableStateOf(0)
+    }
+    val viewState by viewModel.state.collectAsState()
+
+    if (!viewState.booklets.isEmpty()) {
+        LazyVerticalGrid(
+            cells = GridCells.Fixed(1)
+        ) {
+
+            items(viewState.booklets) { item ->
+
+                item.title
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(15.dp)
+                        .clickable { navController.navigate("transactions/${item.bookletId}") },
+                    elevation = 10.dp
+
+                ) {
+                    Column(
+                        modifier = Modifier.padding(15.dp)
+                    ) {
+                        Text(
+                            text = "${item.title}",
+                            style = MaterialTheme.typography.body1,
+                        )
+                        Text(
+                            text = "${item.date}",
                             style = MaterialTheme.typography.body1,
                         )
                     }
