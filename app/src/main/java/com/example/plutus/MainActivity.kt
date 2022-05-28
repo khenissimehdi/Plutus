@@ -19,6 +19,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
@@ -104,7 +105,7 @@ class MainActivity : ComponentActivity() {
                             val id = backStackEntry.arguments?.getString("id")?.toInt()
                             if(id != null){
                                 Log.i(ContentValues.TAG,"id: ${id-1}")
-                                ShowTransaction(viewState.transactions.get(id-1).transaction)
+                                ShowTransaction(viewState.transactions.get(id-1).transaction, navController)
                             }}
 
                     }
@@ -502,7 +503,7 @@ fun TransactionGrid(navController: NavController, viewModel: TransactionViewMode
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(15.dp)
-                        .clickable { navController.navigate("updateTransaction/${item.transaction.id}") },
+                        .clickable { navController.navigate("transaction/${item.transaction.id}") },
                     elevation = 10.dp
 
                 ) {
@@ -569,7 +570,7 @@ fun BookletGrid(navController: NavController, viewModel: BookletViewModel = view
 }
 
 @Composable
-fun ShowTransaction(transaction:Transaction){
+fun ShowTransaction(transaction:Transaction, navController: NavController){
     Column(
         modifier = Modifier.padding(15.dp)
     ) {
@@ -577,7 +578,15 @@ fun ShowTransaction(transaction:Transaction){
             style = MaterialTheme.typography.body1,)
         Text(text = "${transaction.price} €",
             style = MaterialTheme.typography.body1,)
+        Spacer(modifier = Modifier.weight(1f))
+        Row( horizontalArrangement = Arrangement.End) {
+            Spacer(Modifier.weight(1f))
+            Button(onClick = {navController.navigate("updateTransaction/${transaction.id}")}) {
+                Text(text = "Edit", style =  MaterialTheme.typography.body1)
+            }
+        }
     }
+
 }
 
 private val emptyTabIndicator: @Composable (List<TabPosition>) -> Unit = {}
