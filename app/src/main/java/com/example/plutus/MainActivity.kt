@@ -7,22 +7,34 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.GridCells
 import androidx.compose.foundation.lazy.LazyColumn
+
 import androidx.compose.foundation.lazy.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
@@ -41,7 +53,6 @@ import com.example.plutus.core.classes.Transaction
 import com.example.plutus.ui.theme.PlutusTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 
@@ -49,7 +60,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            var selected : Category = Category(1,"1")
+            var selected  = Category(1,"1")
 
             val navController: NavHostController = rememberNavController()
 
@@ -86,7 +97,7 @@ class MainActivity : ComponentActivity() {
                             val id = backStackEntry.arguments?.getString("id")?.toInt()
                             if(id != null){
                                 Log.i(ContentValues.TAG,"id: ${id-1}")
-                                ShowTransaction(viewState.transactions.get(id-1).transaction)
+                                ShowTransaction(viewState.transactions.get(id-1).transaction,navController)
                             }}
 
                     }
@@ -96,6 +107,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun addingTransaction(viewModel: TransactionViewModel = viewModel() , navController: NavController){
     Scaffold(
@@ -121,29 +133,47 @@ fun addingTransaction(viewModel: TransactionViewModel = viewModel() , navControl
             var text by remember { mutableStateOf(TextFieldValue("")) }
 
             var price by remember { mutableStateOf(TextFieldValue("")) }
+            //keyboard stuff
+            val (focusRequester) = FocusRequester.createRefs()
+            val keyboardController = LocalSoftwareKeyboardController.current
+
+            var accepteTransaction  by remember { mutableStateOf(false) }
 
             Column(modifier = Modifier.padding(50.dp)) {
-                OutlinedTextField(
-                    value = text,
-                    onValueChange = { newText ->
-                        text = newText
-                    },
-                    label = { Text(text = "Title") },
-
-                    )
                 OutlinedTextField(
                     value = price,
                     onValueChange = { newText ->
                         price = newText
-                    },keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        accepteTransaction = price.text.isNotEmpty() && text.text.isNotEmpty()
+                    },keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
+                    keyboardActions = KeyboardActions(
+                        onNext = { focusRequester.requestFocus() }
+                    ),
                     label = { Text(text = "Price") },
 
                     )
-                Button(modifier = Modifier.padding(20.dp)
+                OutlinedTextField(
+                    value = text,
+                    onValueChange = { newText ->
+                        text = newText
+                        accepteTransaction = price.text.isNotEmpty() && text.text.isNotEmpty()
+                    },
+                    label = { Text(text = "Title") },
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(
+                        onDone = { keyboardController?.hide()
+                            //accepteTransaction = true
+                        }
+                    ),
+                    modifier = Modifier.focusRequester(focusRequester),
+                    )
+
+                Button(modifier = Modifier.padding(20.dp),
+                    enabled = accepteTransaction
                     ,onClick = {
                         if(text.text.isNotEmpty()){
                             CoroutineScope(Dispatchers.IO).launch {
-                            viewModel.insert(title = text.text,"today", price.text.toInt(),5,3,7);
+                            viewModel.insert(title = text.text,"today", price.text.toInt(),5,1,7);
                             }
                             navController.navigate("home")
                         }
@@ -151,11 +181,6 @@ fun addingTransaction(viewModel: TransactionViewModel = viewModel() , navControl
                     Text(text = "ADD")
                 }
             }
-
-
-
-
-
         }
     )
 }
@@ -228,6 +253,11 @@ fun HomeContent(
 
 
 
+    val categories = ArrayList<Category>()
+    for(i in 1..10){
+        categories.add(Category(i.toLong(),i.toString()))
+    }
+
     Scaffold(
         modifier = Modifier.padding(bottom = 24.dp),
         floatingActionButton = {
@@ -279,76 +309,45 @@ fun HomeContent(
         }
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
+            modifier = Modifier.fillMaxSize().padding(it),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            val appBarColor = MaterialTheme.colors.secondary.copy(alpha = 0.87f)
-
-            HomeAppBar(
-                backgroundColor = appBarColor,
-            )
-
-            TotalBalance()
 
 
-/*            CategoryTabs(
-                categories = categories,
-                selectedCategory = selectedCategory.value,
-                onCategorySelected = {e -> selectedCategory.value = e},
-            )*/
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.height(160.dp)) {
+                HeaderTransactions()
+            }
+            Card(
+                shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
+                backgroundColor = Color.DarkGray,
+                modifier = Modifier.fillMaxSize().padding(top = 70.dp)
 
-            TransactionGrid(navController)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
 
-//            CategoryPayment(
-//                modifier = Modifier.fillMaxSize()
-//            )
+                    CategoryTabs(
+                        categories = categories,
+                        selectedCategory = selectedCategory.value,
+                        onCategorySelected = {e -> selectedCategory.value = e},
+                    )
+
+                    TransactionGrid(navController)
+
+
+                }
+            }
+
         }
     }
 }
 
-@Composable
-private fun TotalBalance(){
-    Card(
-        shape = RoundedCornerShape(4.dp), modifier = Modifier.padding(8.dp),
-        backgroundColor = Color.LightGray
-    ) {
-        // The Text composable is pre-defined by the Compose UI library; you can use this
-        // composable to render text on the screen
-        Text(
-            text = "Render", modifier = Modifier.padding(16.dp),
-            style = TextStyle(
-                fontSize = 16.sp,
-                fontFamily = FontFamily.Serif
-            )
-        )
-    }
-}
 
-@Composable
-private fun HomeAppBar(
-    backgroundColor: Color
-) {
-    TopAppBar(
-        title = {
-            Text(
-                text = "Plutos",
-                color = MaterialTheme.colors.secondary,
-                modifier = Modifier
-                    .padding(start = 4.dp)
-                    .heightIn(max = 24.dp)
-            )
-        },
-        backgroundColor = backgroundColor,
-        actions = {
-            IconButton( onClick = {} ) {
-                Icon(imageVector = Icons.Filled.Search, "search")
-            }
-            IconButton( onClick = {} ) {
-                Icon(imageVector = Icons.Filled.AccountCircle, "acount")
-            }
-        }
-    )
-}
+
 
 @Composable
 private fun CategoryTabs(
@@ -420,11 +419,11 @@ fun TransactionGrid(navController: NavController, viewModel: TransactionViewMode
             items(viewState.transactions) { item ->
 
                 item.transaction.title;
-
+                val textColor = if (item.transaction.price <0) Color.Red else Color.Green
                 Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(15.dp)
+                    shape = RoundedCornerShape(14.dp),
+                    backgroundColor = Color.White,
+                    modifier = Modifier.padding(10.dp).width(180.dp)
                         .clickable { navController.navigate("transaction/${item.transaction.id}") },
                     elevation = 10.dp
 
@@ -434,11 +433,17 @@ fun TransactionGrid(navController: NavController, viewModel: TransactionViewMode
                     ) {
                         Text(
                             text = "${item.transaction.title}",
-                            style = MaterialTheme.typography.body1,
+                            style = TextStyle(
+                                color = Color.Gray,
+                                fontSize = 16.sp
+                            )
                         )
                         Text(
                             text = "${item.transaction.price} €",
-                            style = MaterialTheme.typography.body1,
+                            style =  TextStyle(
+                                color = textColor,
+                                fontSize = 16.sp
+                            )
                         )
                     }
                 }
@@ -448,14 +453,161 @@ fun TransactionGrid(navController: NavController, viewModel: TransactionViewMode
 }
 
 @Composable
-fun ShowTransaction(transaction:Transaction){
-    Column(
-        modifier = Modifier.padding(15.dp)
+fun ShowTransaction(transaction:Transaction ,navController: NavController ){
+
+    val result = remember { mutableStateOf("") }
+    val selectedItem = remember { mutableStateOf("upload") }
+
+    Scaffold(
+        modifier = Modifier.padding(bottom = 24.dp),
+        bottomBar = {
+            BottomAppBar(
+                content = {
+                    BottomNavigation() {
+                        BottomNavigationItem(
+                            icon = {
+                                Icon(Icons.Filled.Home , "")
+                            },
+                            label = { Text(text = "All Transaction")},
+                            selected = selectedItem.value == "all Transaction",
+                            onClick = {
+                               navController.navigate("home")
+                            },
+                            alwaysShowLabel = false
+                        )
+
+                        BottomNavigationItem(
+                            icon = {
+                                Icon(Icons.Filled.Info ,  "")
+                            },
+
+                            label = { Text(text = "Rien")},
+                            selected = selectedItem.value == "RIEN",
+                            onClick = {
+                                result.value = "Upload icon clicked"
+                                selectedItem.value = "Info"
+                            },
+                            alwaysShowLabel = false
+                        )
+                    }
+                }
+            )
+        }
     ) {
-        Text(text = "${transaction.title}",
-            style = MaterialTheme.typography.body1,)
-        Text(text = "${transaction.price} €",
-            style = MaterialTheme.typography.body1,)
+
+
+
+       /* Column(
+            modifier = Modifier.padding(15.dp)
+        ) {
+            Text(
+                text = "${transaction.title}",
+                style = MaterialTheme.typography.body1,
+            )
+            Text(
+                 text = "${transaction.price} €",
+                style = MaterialTheme.typography.body1,
+            )
+        }*/
+        TransactionLayout(transaction)
+    }
+}
+
+@Composable
+fun TransactionLayout(transaction:Transaction){
+
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+
+
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.height(240.dp)) {
+                HeaderView()
+            }
+            Card(
+                shape = RoundedCornerShape(topStart = 40.dp, topEnd = 40.dp),
+                backgroundColor = Color.DarkGray,
+                modifier = Modifier.fillMaxSize().padding(top = 70.dp)
+
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxSize()
+                        .padding(30.dp)
+                ) {
+
+
+                    Text(
+                        modifier = Modifier.fillMaxWidth()
+                            .padding(top = 10.dp, bottom = 20.dp),
+                        text = transaction.title,
+                        textAlign = TextAlign.Center,
+                        fontSize = 22.sp
+                    )
+                    Text(
+                        modifier = Modifier.fillMaxWidth()
+                            .padding(top = 20.dp, bottom = 20.dp),
+                        text = "${transaction.price} €",
+                        textAlign = TextAlign.Center,
+                        fontSize = 60.sp
+                    )
+                    Text(
+                        modifier = Modifier.fillMaxWidth()
+                            .padding(top = 20.dp, bottom = 20.dp),
+                        text = "${transaction.date}",
+                        textAlign = TextAlign.Start,
+                        fontSize = 18.sp
+                    )
+
+                }
+            }
+        }
+
+}
+
+@Composable
+fun HeaderView() {
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.padding(bottom = 40.dp)
+    ) {
+        Image(
+            modifier = Modifier.wrapContentWidth(),
+            bitmap = ImageBitmap.imageResource(id = R.drawable.wallet),
+            contentDescription ="Wallet"
+        )
+    }
+}
+
+@Composable
+fun HeaderTransactions() {
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.padding(bottom = 20.dp, top=60.dp)
+    ) {
+
+
+        Text(
+            text = "Total Balance",
+            color = Color.White,
+            style = TextStyle(
+                fontSize = 22.sp,
+                letterSpacing = 2.sp
+            )
+        )
+        Text(
+            text = "13.790€",
+            color = Color.White,
+            style = TextStyle(
+                fontSize = 42.sp,
+                letterSpacing = 2.sp,
+                fontWeight = FontWeight(500)
+            )
+        )
     }
 }
 
