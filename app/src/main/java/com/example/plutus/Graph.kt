@@ -52,16 +52,16 @@ object Graph {
 
 
     fun provide(context: Context) {
-        database = Room.databaseBuilder(context, PlutusRoomDatabase::class.java, "plutus2.db").fallbackToDestructiveMigration().build()
+        database = Room.databaseBuilder(context, PlutusRoomDatabase::class.java, "plutus4.db").build()
        // database.clearAllTables()
     }
 
 
     // TEST FUNC
     fun pop() {
-
+        val categories = listOf("School", "Fun")
         var booklet =  database.bookletDao()
-       var t = database.noteDao()
+        var t = database.noteDao()
         var c = database.categoryDao()
         var categ = Category(1,"Meca")
         var relation =  PossedeCrossRef(1,1)
@@ -69,8 +69,12 @@ object Graph {
         var cb = database.currentBookletDao()
 
         CoroutineScope(Dispatchers.IO).launch {
-           // booklet.insertBooklet(Booklet("Car","today"))
-         //  database.clearAllTables()
+            // booklet.insertBooklet(Booklet("Car","today"))
+         // database.clearAllTables()
+           // c.deleteCategoryById(5)
+            categories.forEach {
+                c.insertCategory(Category(it))
+            }
             cb.insertCurrentBooklet(CurrentBooklet(1))
 
 

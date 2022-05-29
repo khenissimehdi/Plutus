@@ -21,6 +21,8 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.plutus.composables.ui.dropDownSelect.DropDownInput
+import com.example.plutus.core.CategoryViewModel
 import com.example.plutus.core.CurrentBookletViewModel
 import com.example.plutus.core.TransactionViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -34,7 +36,7 @@ import java.util.*
  * */
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterialApi::class)
 @Composable
-fun addingTransaction(viewModel: TransactionViewModel = viewModel(), navController: NavController, currentBookletViewModel: CurrentBookletViewModel){
+fun addingTransaction(viewModel: TransactionViewModel = viewModel(), navController: NavController, currentBookletViewModel: CurrentBookletViewModel, categModel: CategoryViewModel){
     Scaffold(
         topBar = {
 
@@ -47,6 +49,16 @@ fun addingTransaction(viewModel: TransactionViewModel = viewModel(), navControll
             val (focusRequester) = FocusRequester.createRefs()
             val keyboardController = LocalSoftwareKeyboardController.current
             val viewState by currentBookletViewModel.state.collectAsState()
+            val categViewState by categModel.state.collectAsState()
+
+            val seleted = remember {
+                mutableStateOf(0)
+            }
+
+            val seletedString = remember {
+                mutableStateOf("")
+            }
+
             var accepteTransaction  by remember { mutableStateOf(false) }
 
             Column(modifier = Modifier.padding(50.dp)) {
@@ -78,7 +90,9 @@ fun addingTransaction(viewModel: TransactionViewModel = viewModel(), navControll
                     ),
                     modifier = Modifier.focusRequester(focusRequester),
                 )
-                UIDatePicker(date)
+                DropDownInput(seleted,seletedString, categViewState.categories.map { e -> e.title })
+                UIDatePicker(dateState = date)
+
 
                 Button(modifier = Modifier.padding(20.dp),
                     enabled = accepteTransaction
@@ -86,11 +100,22 @@ fun addingTransaction(viewModel: TransactionViewModel = viewModel(), navControll
                         if(text.text.isNotEmpty()){
                             CoroutineScope(Dispatchers.IO).launch {
                                 val id = viewState.bookletcurr.id
+                                val ids =  categViewState.categories.map { e -> e.id }
+                                Log.i("sting", seletedString.value)
+                                if(!ids.contains(seleted.value.toLong())) {
+                                    val idCateg = categModel.insert(seletedString.value)
+                                    viewModel.insert(title = text.text,date.value, price.text.toInt(),5,id.toInt(),
+                                        idCateg.toInt());
 
-                                viewModel.insert(title = text.text,date.value, price.text.toInt(),5,id.toInt(),
-                                    1);
+                                } else {
+                                    viewModel.insert(title = text.text,date.value, price.text.toInt(),5,id.toInt(),
+                                        seleted.value);
+
+                                }
+
                             }
                             navController.navigate("home")
+
                         }
                     }) {
                     Text(text = "ADD")

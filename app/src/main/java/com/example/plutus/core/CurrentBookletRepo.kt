@@ -19,7 +19,7 @@ class CurrentBookletRepo(val currentBookletDao: CurrentBookletDao) {
     @Suppress("RedundantSuspendModifier")
     @WorkerThread
     suspend fun insert(currentBooklet: CurrentBooklet, oldBookletId: Int) {
-        Log.i("delete", oldBookletId.toString())
+
         currentBookletDao.deleteCurrentBooklet(oldBookletId)
         currentBookletDao.insertCurrentBooklet(currentBooklet = currentBooklet)
     }

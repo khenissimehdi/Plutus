@@ -17,6 +17,7 @@ import com.example.plutus.composables.actions.transaction.updateTransaction
 import com.example.plutus.composables.ui.home.ModalBottomSheet
 import com.example.plutus.composables.ui.transaction.ShowTransaction
 import com.example.plutus.composables.ui.transaction.TransactionGrid
+import com.example.plutus.core.CategoryViewModel
 import com.example.plutus.core.CurrentBookletViewModel
 import com.example.plutus.core.TransactionViewModel
 import com.example.plutus.core.classes.Category
@@ -36,6 +37,7 @@ class MainActivity : ComponentActivity() {
 
             val viewModel: TransactionViewModel = viewModel()
             val viewModelCurrentBooklet:  CurrentBookletViewModel = viewModel()
+            val viewModelCategory:  CategoryViewModel = viewModel()
             val viewState by viewModel.state.collectAsState()
             val currentBookletState by viewModelCurrentBooklet.state.collectAsState()
             val currentNav =  remember {
@@ -57,15 +59,16 @@ class MainActivity : ComponentActivity() {
                                 selectedCategory2 = selected,
                                 onCategorySelected = {e -> selected =e} ,
                                 navController = navController,
-                                content = { addingTransaction(navController = navController, currentBookletViewModel = viewModelCurrentBooklet) },
+                                content = { addingTransaction(navController = navController, currentBookletViewModel = viewModelCurrentBooklet, categModel = viewModelCategory) },
                                  currentBookletViewModel = viewModelCurrentBooklet,
-                                currentNav = currentNav
+                                currentNav = currentNav,
+                                categoryViewModel = viewModelCategory
                             )
                         }
                         composable(route = "transactions/{id}") {
                             val id = it.arguments?.getString("id")?.toInt()
                             if(id != null) {
-                               TransactionGrid(navController = navController, currentBookletViewModel = viewModelCurrentBooklet)
+                               //TransactionGrid(navController = navController, currentBookletViewModel = viewModelCurrentBooklet, seletedCategory = sel)
                             }
 
                         }

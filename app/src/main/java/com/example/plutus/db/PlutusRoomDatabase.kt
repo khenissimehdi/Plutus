@@ -20,7 +20,7 @@ import kotlinx.coroutines.launch
         Category::class,
         PossedeCrossRef::class,
         CurrentBooklet::class],
-    version = 5,
+    version = 1,
     exportSchema = true
 )
 

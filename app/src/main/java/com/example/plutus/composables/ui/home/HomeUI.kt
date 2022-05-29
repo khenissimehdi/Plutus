@@ -23,6 +23,7 @@ import com.example.plutus.composables.ui.category.*
 import com.example.plutus.composables.ui.booklet.BookletGrid
 import com.example.plutus.composables.ui.header.HeaderTransactions
 import com.example.plutus.composables.ui.transaction.TransactionGrid
+import com.example.plutus.core.CategoryViewModel
 import com.example.plutus.core.CurrentBookletViewModel
 import com.example.plutus.core.TransactionViewModel
 import com.example.plutus.core.classes.Category
@@ -38,6 +39,7 @@ fun ModalBottomSheet(viewModel: TransactionViewModel = viewModel(),
                      onCategorySelected: (Category) -> Unit,
                      navController: NavController,
                      currentNav: MutableState<String>,
+                     categoryViewModel: CategoryViewModel,
                      content: @Composable() () -> Unit,
 
                      ) {
@@ -74,7 +76,7 @@ fun ModalBottomSheet(viewModel: TransactionViewModel = viewModel(),
             onClick = {
                 coroutineScope.launch {
                     sheetState.animateTo(ModalBottomSheetValue.Expanded)
-                }}, viewModel = currentBookletViewModel )
+                }}, viewModel = currentBookletViewModel, categoryViewModel = categoryViewModel )
     }
 }
 
@@ -85,7 +87,8 @@ fun MainContent(selectedCategory2: Category,
                 navController: NavController,
                 onClick: () -> Unit,
                 currentNav: MutableState<String>,
-                modifier: Modifier = Modifier
+                modifier: Modifier = Modifier,
+                categoryViewModel: CategoryViewModel
 ) {
 
     HomeContent(
@@ -94,7 +97,9 @@ fun MainContent(selectedCategory2: Category,
         navController = navController,
         currentNav = currentNav,
         onClick = onClick,
-        viewModel = viewModel)
+        viewModel = viewModel,
+        categoryViewModel = categoryViewModel
+    )
 
 }
 
@@ -107,17 +112,16 @@ fun HomeContent(
     viewModel: CurrentBookletViewModel,
     currentNav: MutableState<String>,
     navController: NavController,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    categoryViewModel: CategoryViewModel
 ) {
     val selectedCategory = remember { mutableStateOf(Category(1,"1")) }
     val result = remember { mutableStateOf("") }
     val selectedItem = remember { mutableStateOf("Home") }
     val fabShape = RoundedCornerShape(50)
+    val viewState by categoryViewModel.state.collectAsState()
 
-    val categories = ArrayList<Category>()
-    for(i in 1..10){
-        categories.add(Category(i.toLong(),i.toString()))
-    }
+
 
     Scaffold(
         modifier = Modifier.padding(bottom = 24.dp),
@@ -201,12 +205,17 @@ fun HomeContent(
                 ) {
 
                     CategoryTabs(
-                        categories = categories,
+                        categories = viewState.categories,
                         selectedCategory = selectedCategory.value,
-                        onCategorySelected = {e -> selectedCategory.value = e},
+                        onCategorySelected = { e ->
+                            run {
+                                selectedCategory.value = e
+                            }
+                        },
                     )
                     if (selectedItem.value.equals("Home")) {
-                        TransactionGrid(navController = navController, currentBookletViewModel = viewModel)
+
+                        TransactionGrid(navController = navController, currentBookletViewModel = viewModel, seletedCategory = selectedCategory.value)
                     } else {
                         BookletGrid(navController = navController, seleted = selectedItem, currentBookletViewModel = viewModel, currentNav = currentNav)
                     }

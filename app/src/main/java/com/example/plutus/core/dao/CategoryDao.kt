@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface CategoryDao {
     @Insert
-    fun insertCategory(category: Category)
+    fun insertCategory(category: Category): Long
 
     @Query("SELECT * FROM  category WHERE categoryId = :id")
     fun findCategoryById(id: Int): Category

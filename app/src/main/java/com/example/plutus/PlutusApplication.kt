@@ -8,7 +8,7 @@ class PlutusApplication: Application() {
     override fun onCreate() {
         super.onCreate()
         Graph.provide(this)
-      //  Graph.pop()
+       // Graph.pop()
     }
 }
 

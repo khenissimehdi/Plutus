@@ -7,10 +7,10 @@ import com.example.plutus.core.dao.CategoryDao
 import kotlinx.coroutines.flow.Flow
 
 data class CategoryRepo(val categoryDao: CategoryDao) {
-    fun allTransaction(): Flow<List<Category>> = categoryDao.getAllCategories();
+    fun allCategories(): Flow<List<Category>> = categoryDao.getAllCategories();
     @Suppress("RedundantSuspendModifier")
     @WorkerThread
-    suspend fun insert(category: Category) {
-        categoryDao.insertCategory(category = category);
+    suspend fun insert(category: Category): Long {
+        return categoryDao.insertCategory(category = category);
     }
 }

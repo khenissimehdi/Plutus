@@ -1,6 +1,7 @@
 package com.example.plutus.composables.ui.transaction
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -24,6 +25,7 @@ import androidx.navigation.NavController
 import com.example.plutus.composables.ui.header.HeaderView
 import com.example.plutus.core.CurrentBookletViewModel
 import com.example.plutus.core.TransactionViewModel
+import com.example.plutus.core.classes.Category
 import com.example.plutus.core.classes.Transaction
 import java.text.SimpleDateFormat
 
@@ -32,7 +34,8 @@ import java.text.SimpleDateFormat
 @Composable
 fun TransactionGrid(navController: NavController,
                     viewModel: TransactionViewModel = viewModel(),
-                    currentBookletViewModel: CurrentBookletViewModel
+                    currentBookletViewModel: CurrentBookletViewModel,
+                    seletedCategory: Category
 
 ) {
     var infoSelect: Int by remember {
@@ -42,7 +45,10 @@ fun TransactionGrid(navController: NavController,
     val currentBookletViewState by currentBookletViewModel.state.collectAsState()
     val format = SimpleDateFormat("dd/MM/yyy")
     if (!viewState.transactions.isEmpty()) {
-        var transactionByBookletId = viewState.transactions.filter { it.transaction.bookletIdT == currentBookletViewState.bookletcurr.id.toInt() }
+
+        //Log.i("Categ", c.toString() )
+        var transactionByBookletId = viewState.transactions.filter { it.transaction.bookletIdT == currentBookletViewState.bookletcurr.id.toInt()}
+
         LazyVerticalGrid(
             cells = GridCells.Fixed(1)
         ) {
@@ -51,42 +57,46 @@ fun TransactionGrid(navController: NavController,
 
                 item.transaction.title;
                 val textColor = if (item.transaction.price <0) Color.Red else Color.Green
-                Card(
-                    shape = RoundedCornerShape(14.dp),
-                    backgroundColor = Color.White,
-                    modifier = Modifier
-                        .padding(10.dp)
-                        .width(180.dp)
-                        .clickable { navController.navigate("transaction/${item.transaction.id}") },
-                    elevation = 10.dp
 
-                ) {
-                    Column(
-                        modifier = Modifier.padding(15.dp)
+              if(item.categories.isNotEmpty() && item.categories[0] .id == seletedCategory.id) {
+                    Card(
+                        shape = RoundedCornerShape(14.dp),
+                        backgroundColor = Color.White,
+                        modifier = Modifier
+                            .padding(10.dp)
+                            .width(180.dp)
+                            .clickable { navController.navigate("transaction/${item.transaction.id}") },
+                        elevation = 10.dp
+
                     ) {
-                        Text(
-                            text = item.transaction.title,
-                            style = TextStyle(
-                                color = Color.Gray,
-                                fontSize = 16.sp
+                        Column(
+                            modifier = Modifier.padding(15.dp)
+                        ) {
+                            Text(
+                                text = item.transaction.title,
+                                style = TextStyle(
+                                    color = Color.Gray,
+                                    fontSize = 16.sp
+                                )
                             )
-                        )
-                        Text(
-                            text = "${item.transaction.price} €",
-                            style =  TextStyle(
-                                color = textColor,
-                                fontSize = 16.sp
+                            Text(
+                                text = "${item.transaction.price} €",
+                                style =  TextStyle(
+                                    color = textColor,
+                                    fontSize = 16.sp
+                                )
                             )
-                        )
-                        Text(
-                            text = format.format(item.transaction.date),
-                            style =  TextStyle(
-                                color = Color.Gray,
-                                fontSize = 16.sp
+                            Text(
+                                text = format.format(item.transaction.date),
+                                style =  TextStyle(
+                                    color = Color.Gray,
+                                    fontSize = 16.sp
+                                )
                             )
-                        )
+                        }
                     }
                 }
+
             }
         }
     }
