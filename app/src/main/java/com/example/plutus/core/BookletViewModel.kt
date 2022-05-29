@@ -8,37 +8,30 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
 
 import kotlinx.coroutines.launch
 
 
 @OptIn(InternalCoroutinesApi::class)
 class BookletViewModel(private val bookletRepo: BookletRepo = Graph.bookletRepository) : ViewModel() {
-    private val _state = MutableStateFlow(HomeViewState())
+    private val _state = MutableStateFlow(HomeBookLetViewState())
     private val _selectedCategory = MutableStateFlow(Booklet())
 
-    val state: StateFlow<HomeViewState>
+    val state: StateFlow<HomeBookLetViewState>
         get() = _state
 
-    fun onCategorySelected(category: Booklet) {
-        _selectedCategory.value = category
-    }
 
     init {
-        viewModelScope.launch(Dispatchers.IO) {
-                print("helo databae")
-        }
-
-        loadCategoriesFromDb()
-    }
-
-    private fun loadCategoriesFromDb() {
-        val list = mutableListOf(
-            Booklet(2,"food","0/0/0")
-        )
-
-        viewModelScope.launch(Dispatchers.IO) {
-            list.forEach { category -> bookletRepo.insert(category) }
+        viewModelScope.launch {
+            bookletRepo.allBooklets().collect {
+                _state.value = HomeBookLetViewState(booklets = it)
+            }
         }
     }
+
 }
+
+data class HomeBookLetViewState(
+    var booklets:List<Booklet> = emptyList()
+)

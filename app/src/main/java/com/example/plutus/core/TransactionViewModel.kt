@@ -30,6 +30,14 @@ class TransactionViewModel(private val transactionRepo: TransactionRepo = Graph.
             transactionRepo.insertTransactionGategAndAction(transaction = transaction, categoryId = categoryId)
     }
 
+    suspend fun updateById(transaction: Transaction) {
+        transactionRepo.updateById(transaction = transaction);
+    }
+
+    suspend fun getTransactionById(id: Int): Transaction {
+        return transactionRepo.getTransactionById(id = id)
+    }
+
     init {
         viewModelScope.launch {
              transactionRepo.allTransaction().collect {

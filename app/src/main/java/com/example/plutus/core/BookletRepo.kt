@@ -9,7 +9,7 @@ import com.example.plutus.core.dao.TransactionDao
 import kotlinx.coroutines.flow.Flow
 
 class BookletRepo(private val bookletDao: BookletDao) {
-    fun allTransaction(): Flow<List<Booklet>> = bookletDao.getAllBookLet();
+    fun allBooklets(): Flow<List<Booklet>> = bookletDao.getAllBookLet();
     @Suppress("RedundantSuspendModifier")
     @WorkerThread
     suspend fun insert(booklet: Booklet) {

@@ -1,10 +1,9 @@
 package com.example.plutus.core.dao
 
 import androidx.lifecycle.LiveData
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.Query
+import androidx.room.*
 import com.example.plutus.core.classes.*
+import com.example.plutus.core.classes.Transaction
 import kotlinx.coroutines.flow.Flow
 
 
@@ -20,6 +19,8 @@ interface TransactionDao {
     @Query("DELETE FROM transactions WHERE transactionId = :id")
     fun deleteTransactionById(id: Int)
 
+    @Update(entity = Transaction::class,onConflict = OnConflictStrategy.REPLACE)
+    fun update(transaction: Transaction)
     @Insert
     fun insert(join: PossedeCrossRef)
 

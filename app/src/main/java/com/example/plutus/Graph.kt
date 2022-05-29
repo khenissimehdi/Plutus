@@ -2,10 +2,7 @@ package com.example.plutus
 import android.content.Context
 import android.util.Log
 import androidx.room.Room
-import com.example.plutus.core.ActionRepo
-import com.example.plutus.core.BookletRepo
-import com.example.plutus.core.CategoryRepo
-import com.example.plutus.core.TransactionRepo
+import com.example.plutus.core.*
 import com.example.plutus.core.classes.*
 import com.example.plutus.db.PlutusRoomDatabase
 import kotlinx.coroutines.CoroutineScope
@@ -28,7 +25,14 @@ object Graph {
         )
     }
 
-    val bookletRepository by lazy {
+    val currentBookletRepository by lazy {
+        CurrentBookletRepo(
+            currentBookletDao = database.currentBookletDao()
+        )
+    }
+
+
+    val bookletRepository  by lazy {
         BookletRepo(
             bookletDao = database.bookletDao()
         )
@@ -45,8 +49,10 @@ object Graph {
             categoryDao = database.categoryDao()
         )
     }
+
+
     fun provide(context: Context) {
-        database = Room.databaseBuilder(context, PlutusRoomDatabase::class.java, "plutus2.db").build()
+        database = Room.databaseBuilder(context, PlutusRoomDatabase::class.java, "plutus2.db").fallbackToDestructiveMigration().build()
        // database.clearAllTables()
     }
 
@@ -54,23 +60,24 @@ object Graph {
     // TEST FUNC
     fun pop() {
 
-       var booklet =  database.bookletDao()
-        var t = database.noteDao()
+        var booklet =  database.bookletDao()
+       var t = database.noteDao()
         var c = database.categoryDao()
         var categ = Category(1,"Meca")
         var relation =  PossedeCrossRef(1,1)
         var ac = database.actionDao()
+        var cb = database.currentBookletDao()
+
         CoroutineScope(Dispatchers.IO).launch {
+           // booklet.insertBooklet(Booklet("Car","today"))
          //  database.clearAllTables()
-             t.getAllTransaction().collect {
-               Log.i("hel", it.size.toString())
-           }
+            cb.insertCurrentBooklet(CurrentBooklet(1))
 
-            //c.insertCategory(categ)
-           t.insert(PossedeCrossRef(2,1))
-            t.insertTransaction(Transaction("Things","today",2000,2,0))
 
-          /*  ac.getTransactionsBindToAction().collect {
+           // t.insert(PossedeCrossRef(2,1))
+          //  t.insertTransaction(Transaction("Things","today",2000,2,1))
+
+          /* ac.getTransactionsBindToAction().collect {
                 if(!it.isEmpty()) {
                    it.forEach { e ->
                        run {

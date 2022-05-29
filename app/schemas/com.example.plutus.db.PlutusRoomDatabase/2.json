@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 2,
-    "identityHash": "549bcafbbb3dfac079bd5123a876c660",
+    "identityHash": "710bfc969a96b7b512525f2663ead330",
     "entities": [
       {
         "tableName": "transactions",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`transactionId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `date` TEXT NOT NULL, `price` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`transactionId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `date` TEXT NOT NULL, `price` INTEGER NOT NULL, `actionIdT` INTEGER NOT NULL, `bookletIdT` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -29,6 +29,18 @@
           {
             "fieldPath": "price",
             "columnName": "price",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "actionIdT",
+            "columnName": "actionIdT",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "bookletIdT",
+            "columnName": "bookletIdT",
             "affinity": "INTEGER",
             "notNull": true
           }
@@ -73,7 +85,7 @@
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`bookletId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `date` TEXT NOT NULL)",
         "fields": [
           {
-            "fieldPath": "id",
+            "fieldPath": "bookletId",
             "columnName": "bookletId",
             "affinity": "INTEGER",
             "notNull": true
@@ -152,12 +164,32 @@
         },
         "indices": [],
         "foreignKeys": []
+      },
+      {
+        "tableName": "currentBooklet",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`currentBookletId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "currentBookletId",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "currentBookletId"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '549bcafbbb3dfac079bd5123a876c660')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '710bfc969a96b7b512525f2663ead330')"
     ]
   }
 }
