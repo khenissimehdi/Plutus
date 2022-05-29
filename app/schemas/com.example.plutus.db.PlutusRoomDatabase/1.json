@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "11008379abfb9e3824e73bd8f4bfe25e",
+    "identityHash": "8ebb04f10974adf0fdd1e53a1a0bd267",
     "entities": [
       {
         "tableName": "transactions",
@@ -164,12 +164,32 @@
         },
         "indices": [],
         "foreignKeys": []
+      },
+      {
+        "tableName": "currentBooklet",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`categoryId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "categoryId",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "categoryId"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '11008379abfb9e3824e73bd8f4bfe25e')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '8ebb04f10974adf0fdd1e53a1a0bd267')"
     ]
   }
 }

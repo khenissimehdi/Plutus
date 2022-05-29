@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 3,
-    "identityHash": "aa06a002c5078f55641ceb69152536cc",
+    "identityHash": "710bfc969a96b7b512525f2663ead330",
     "entities": [
       {
         "tableName": "transactions",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`transactionId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `date` TEXT NOT NULL, `price` INTEGER NOT NULL, `actionIdT` INTEGER NOT NULL, `bookletIdT` INTEGER NOT NULL, FOREIGN KEY(`actionIdT`) REFERENCES `action`(`actionId`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`bookletIdT`) REFERENCES `booklet`(`bookletId`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`transactionId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `date` TEXT NOT NULL, `price` INTEGER NOT NULL, `actionIdT` INTEGER NOT NULL, `bookletIdT` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -52,30 +52,7 @@
           "autoGenerate": true
         },
         "indices": [],
-        "foreignKeys": [
-          {
-            "table": "action",
-            "onDelete": "NO ACTION",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "actionIdT"
-            ],
-            "referencedColumns": [
-              "actionId"
-            ]
-          },
-          {
-            "table": "booklet",
-            "onDelete": "NO ACTION",
-            "onUpdate": "NO ACTION",
-            "columns": [
-              "bookletIdT"
-            ],
-            "referencedColumns": [
-              "bookletId"
-            ]
-          }
-        ]
+        "foreignKeys": []
       },
       {
         "tableName": "action",
@@ -108,7 +85,7 @@
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`bookletId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `date` TEXT NOT NULL)",
         "fields": [
           {
-            "fieldPath": "id",
+            "fieldPath": "bookletId",
             "columnName": "bookletId",
             "affinity": "INTEGER",
             "notNull": true
@@ -187,12 +164,32 @@
         },
         "indices": [],
         "foreignKeys": []
+      },
+      {
+        "tableName": "currentBooklet",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`currentBookletId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "currentBookletId",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "currentBookletId"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [],
+        "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'aa06a002c5078f55641ceb69152536cc')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '710bfc969a96b7b512525f2663ead330')"
     ]
   }
 }
