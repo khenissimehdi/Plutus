@@ -2,6 +2,7 @@ package com.example.plutus.core.classes
 
 import androidx.annotation.NonNull
 import androidx.room.*
+import java.util.*
 
 @Entity(tableName = "transactions")
 class Transaction {
@@ -13,7 +14,7 @@ class Transaction {
     @ColumnInfo(name = "title")
     var title: String = ""
     @ColumnInfo(name = "date")
-    var date: String = ""
+    var date: Date = Date()
     @ColumnInfo(name = "price")
     var price: Int = 0;
     @ColumnInfo(name = "actionIdT")
@@ -23,7 +24,7 @@ class Transaction {
 
     constructor(){}
 
-    constructor(id: Int, title: String, date: String, price: Int, actionIdT: Int, bookletIdT: Int) {
+    constructor(id: Int, title: String, date: Date, price: Int, actionIdT: Int, bookletIdT: Int) {
         this.id = id;
         this.title = title;
         this.date = date;
@@ -32,7 +33,7 @@ class Transaction {
         this.bookletIdT  = bookletIdT
     }
 
-    constructor(title: String, date: String, price: Int, actionIdT: Int, bookletIdT: Int) {
+    constructor(title: String, date: Date, price: Int, actionIdT: Int, bookletIdT: Int) {
         this.title = title;
         this.date = date;
         this.price = price;

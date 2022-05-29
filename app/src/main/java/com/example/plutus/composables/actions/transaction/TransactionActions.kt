@@ -1,5 +1,6 @@
 package com.example.plutus.composables.actions.transaction
 
+import UIDatePicker
 import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -25,6 +26,7 @@ import com.example.plutus.core.TransactionViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.*
 
 
 /**
@@ -39,7 +41,7 @@ fun addingTransaction(viewModel: TransactionViewModel = viewModel(), navControll
         },
         content = {
             var text by remember { mutableStateOf(TextFieldValue("")) }
-
+            var date = remember { mutableStateOf(Date()) }
             var price by remember { mutableStateOf(TextFieldValue("")) }
             //keyboard stuff
             val (focusRequester) = FocusRequester.createRefs()
@@ -48,6 +50,7 @@ fun addingTransaction(viewModel: TransactionViewModel = viewModel(), navControll
             var accepteTransaction  by remember { mutableStateOf(false) }
 
             Column(modifier = Modifier.padding(50.dp)) {
+
                 OutlinedTextField(
                     value = price,
                     onValueChange = { newText ->
@@ -75,15 +78,16 @@ fun addingTransaction(viewModel: TransactionViewModel = viewModel(), navControll
                     ),
                     modifier = Modifier.focusRequester(focusRequester),
                 )
+                UIDatePicker(date)
 
                 Button(modifier = Modifier.padding(20.dp),
                     enabled = accepteTransaction
                     ,onClick = {
                         if(text.text.isNotEmpty()){
                             CoroutineScope(Dispatchers.IO).launch {
-                                var id = viewState.bookletcurr.id
-                                Log.i("koko", id.toString())
-                                viewModel.insert(title = text.text,"today", price.text.toInt(),5,id.toInt(),
+                                val id = viewState.bookletcurr.id
+
+                                viewModel.insert(title = text.text,date.value, price.text.toInt(),5,id.toInt(),
                                     1);
                             }
                             navController.navigate("home")

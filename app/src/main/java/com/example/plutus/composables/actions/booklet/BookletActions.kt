@@ -73,7 +73,6 @@ fun addingBooklet(viewModel: BookletViewModel = viewModel(), navController: NavC
                     ,onClick = {
                         if(text.text.isNotEmpty()){
                             CoroutineScope(Dispatchers.IO).launch {
-                                Log.i("datepick", date.value.toString())
                                 var booklet = Booklet(title = text.text, date = date.value)
                               viewModel.insertBooklet(booklet)
 

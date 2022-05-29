@@ -1,5 +1,6 @@
 package com.example.plutus.composables.ui.transaction
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -10,7 +11,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,7 +25,9 @@ import com.example.plutus.composables.ui.header.HeaderView
 import com.example.plutus.core.CurrentBookletViewModel
 import com.example.plutus.core.TransactionViewModel
 import com.example.plutus.core.classes.Transaction
+import java.text.SimpleDateFormat
 
+@SuppressLint("SimpleDateFormat")
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TransactionGrid(navController: NavController,
@@ -33,12 +35,12 @@ fun TransactionGrid(navController: NavController,
                     currentBookletViewModel: CurrentBookletViewModel
 
 ) {
-
     var infoSelect: Int by remember {
         mutableStateOf(0)
     }
     val viewState by viewModel.state.collectAsState()
     val currentBookletViewState by currentBookletViewModel.state.collectAsState()
+    val format = SimpleDateFormat("dd/MM/yyy")
     if (!viewState.transactions.isEmpty()) {
         var transactionByBookletId = viewState.transactions.filter { it.transaction.bookletIdT == currentBookletViewState.bookletcurr.id.toInt() }
         LazyVerticalGrid(
@@ -73,6 +75,13 @@ fun TransactionGrid(navController: NavController,
                             text = "${item.transaction.price} €",
                             style =  TextStyle(
                                 color = textColor,
+                                fontSize = 16.sp
+                            )
+                        )
+                        Text(
+                            text = format.format(item.transaction.date),
+                            style =  TextStyle(
+                                color = Color.Gray,
                                 fontSize = 16.sp
                             )
                         )
@@ -117,9 +126,10 @@ fun ShowTransaction(transaction: Transaction, navController: NavController) {
     }
 }
 
+@SuppressLint("SimpleDateFormat")
 @Composable
 fun TransactionLayout(transaction: Transaction){
-
+    val format = SimpleDateFormat("dd/MM/yyy")
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -165,10 +175,10 @@ fun TransactionLayout(transaction: Transaction){
                 Text(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 20.dp, bottom = 20.dp),
-                    text = "${transaction.date}",
-                    textAlign = TextAlign.Start,
-                    fontSize = 18.sp
+                        .padding(top = 20.dp, bottom = 20.dp).align(Alignment.CenterHorizontally),
+                    text = format.format(transaction.date),
+                    textAlign = TextAlign.Center,
+                    fontSize = 25.sp
                 )
 
             }

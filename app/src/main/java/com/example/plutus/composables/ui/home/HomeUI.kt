@@ -93,7 +93,8 @@ fun MainContent(selectedCategory2: Category,
         onCategorySelected = onCategorySelected,
         navController = navController,
         currentNav = currentNav,
-        onClick = onClick, viewModel = viewModel)
+        onClick = onClick,
+        viewModel = viewModel)
 
 }
 
@@ -207,7 +208,7 @@ fun HomeContent(
                     if (selectedItem.value.equals("Home")) {
                         TransactionGrid(navController = navController, currentBookletViewModel = viewModel)
                     } else {
-                        BookletGrid(navController = navController, seleted = selectedItem, currentBookletViewModel = viewModel)
+                        BookletGrid(navController = navController, seleted = selectedItem, currentBookletViewModel = viewModel, currentNav = currentNav)
                     }
 
                 }

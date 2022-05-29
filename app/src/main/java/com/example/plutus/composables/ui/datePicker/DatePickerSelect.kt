@@ -16,6 +16,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import java.text.SimpleDateFormat
 import java.util.*
 
 /**
@@ -27,8 +28,7 @@ import java.util.*
 // Calling this function as content
 // in the above function
 @Composable
-fun UIDatePicker(dateState: MutableState<Date>){
-
+fun UIDatePicker(dateState: MutableState<Date>) {
     // Fetching the Local Context
     val mContext = LocalContext.current
 
