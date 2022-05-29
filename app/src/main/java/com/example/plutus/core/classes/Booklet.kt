@@ -4,6 +4,7 @@ import androidx.annotation.NonNull
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.util.*
 
 @Entity(tableName = "booklet")
 class Booklet {
@@ -14,17 +15,17 @@ class Booklet {
     @ColumnInfo(name = "title")
     var title: String = "";
     @ColumnInfo(name = "date")
-    var date: String = "";
+    var date: Date = Date();
 
     constructor(){}
 
-    constructor(id: Int, title: String, date: String) {
+    constructor(id: Int, title: String, date: Date) {
         this.bookletId = id;
         this.title = title;
         this.date = date;
     }
 
-    constructor(title: String, date: String) {
+    constructor(title: String, date: Date) {
         this.title = title;
         this.date = date;
     }

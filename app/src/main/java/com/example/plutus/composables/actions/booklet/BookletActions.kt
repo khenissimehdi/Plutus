@@ -1,8 +1,12 @@
 package com.example.plutus.composables.actions.booklet
 
+
+import UIDatePicker
 import android.util.Log
+import android.widget.CalendarView
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -16,6 +20,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.plutus.core.BookletViewModel
@@ -25,6 +30,7 @@ import com.example.plutus.core.classes.Booklet
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.util.*
 
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterialApi::class)
@@ -37,7 +43,7 @@ fun addingBooklet(viewModel: BookletViewModel = viewModel(), navController: NavC
         content = {
             var text by remember { mutableStateOf(TextFieldValue("")) }
 
-            var price by remember { mutableStateOf(TextFieldValue("")) }
+            var date = remember { mutableStateOf(Date()) }
             //keyboard stuff
             val (focusRequester) = FocusRequester.createRefs()
             val keyboardController = LocalSoftwareKeyboardController.current
@@ -45,6 +51,7 @@ fun addingBooklet(viewModel: BookletViewModel = viewModel(), navController: NavC
             var accepteTransaction  by remember { mutableStateOf(false) }
 
             Column(modifier = Modifier.padding(50.dp)) {
+                UIDatePicker(date)
                 OutlinedTextField(
                     value = text,
                     onValueChange = { newText ->
@@ -66,7 +73,8 @@ fun addingBooklet(viewModel: BookletViewModel = viewModel(), navController: NavC
                     ,onClick = {
                         if(text.text.isNotEmpty()){
                             CoroutineScope(Dispatchers.IO).launch {
-                                var booklet = Booklet(title = text.text, date = "helo")
+                                Log.i("datepick", date.value.toString())
+                                var booklet = Booklet(title = text.text, date = date.value)
                               viewModel.insertBooklet(booklet)
 
                             }
@@ -79,3 +87,4 @@ fun addingBooklet(viewModel: BookletViewModel = viewModel(), navController: NavC
         }
     )
 }
+

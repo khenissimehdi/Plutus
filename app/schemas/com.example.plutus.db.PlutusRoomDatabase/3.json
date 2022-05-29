@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 3,
-    "identityHash": "710bfc969a96b7b512525f2663ead330",
+    "identityHash": "a31abb494c576b1f4c1141d5a0a973d8",
     "entities": [
       {
         "tableName": "transactions",
@@ -82,7 +82,7 @@
       },
       {
         "tableName": "booklet",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`bookletId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `date` TEXT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`bookletId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `date` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "bookletId",
@@ -99,7 +99,7 @@
           {
             "fieldPath": "date",
             "columnName": "date",
-            "affinity": "TEXT",
+            "affinity": "INTEGER",
             "notNull": true
           }
         ],
@@ -189,7 +189,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '710bfc969a96b7b512525f2663ead330')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a31abb494c576b1f4c1141d5a0a973d8')"
     ]
   }
 }

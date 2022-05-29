@@ -59,7 +59,7 @@ fun BookletGrid(navController: NavController, seleted: MutableState<String>, vie
                             style = MaterialTheme.typography.body1,
                         )
                         Text(
-                            text = item.date,
+                            text = item.date.toString(),
                             style = MaterialTheme.typography.body1,
                         )
                     }
