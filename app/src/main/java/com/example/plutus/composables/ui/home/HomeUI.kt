@@ -1,5 +1,6 @@
-package com.example.plutus.composables.ui.HomeUI
+package com.example.plutus.composables.ui.home
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -7,10 +8,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -18,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.plutus.composables.actions.booklet.addingBooklet
 
 import com.example.plutus.composables.ui.category.*
 
@@ -38,6 +37,7 @@ fun ModalBottomSheet(viewModel: TransactionViewModel = viewModel(),
                      selectedCategory2: Category,
                      onCategorySelected: (Category) -> Unit,
                      navController: NavController,
+                     currentNav: MutableState<String>,
                      content: @Composable() () -> Unit,
 
                      ) {
@@ -54,7 +54,13 @@ fun ModalBottomSheet(viewModel: TransactionViewModel = viewModel(),
                     .padding(top = 10.dp)
 
             ) {
-                content()
+
+                if(currentNav.value.equals("Home")) {
+                    content()
+                } else {
+                    addingBooklet(navController = navController, currentBookletViewModel = currentBookletViewModel)
+                }
+
             }
         },
         sheetState = sheetState,
@@ -64,7 +70,7 @@ fun ModalBottomSheet(viewModel: TransactionViewModel = viewModel(),
             selectedCategory2 = selectedCategory2,
             onCategorySelected =  onCategorySelected,
             navController = navController,
-
+            currentNav = currentNav,
             onClick = {
                 coroutineScope.launch {
                     sheetState.animateTo(ModalBottomSheetValue.Expanded)
@@ -78,6 +84,7 @@ fun MainContent(selectedCategory2: Category,
                 onCategorySelected: (Category) -> Unit,
                 navController: NavController,
                 onClick: () -> Unit,
+                currentNav: MutableState<String>,
                 modifier: Modifier = Modifier
 ) {
 
@@ -85,6 +92,7 @@ fun MainContent(selectedCategory2: Category,
         selectedCategory2 = selectedCategory2,
         onCategorySelected = onCategorySelected,
         navController = navController,
+        currentNav = currentNav,
         onClick = onClick, viewModel = viewModel)
 
 }
@@ -96,6 +104,7 @@ fun HomeContent(
     selectedCategory2: Category,
     onCategorySelected: (Category) -> Unit,
     viewModel: CurrentBookletViewModel,
+    currentNav: MutableState<String>,
     navController: NavController,
     onClick: () -> Unit
 ) {
@@ -135,6 +144,7 @@ fun HomeContent(
                             label = { Text(text = "Home") },
                             selected = selectedItem.value == "Home",
                             onClick = {
+                                currentNav.value = "Home"
                                 selectedItem.value = "Home"
                             },
                             alwaysShowLabel = false
@@ -148,6 +158,7 @@ fun HomeContent(
                             label = { Text(text = "Booklets") },
                             selected = selectedItem.value == "Booklets",
                             onClick = {
+                                currentNav.value = "Booklets"
                                 selectedItem.value = "Booklets"
 
                             },
@@ -164,9 +175,6 @@ fun HomeContent(
                 .padding(it),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
-
-
             /* CategoryTabs(
                 categories = categories,
                 selectedCategory = selectedCategory.value,

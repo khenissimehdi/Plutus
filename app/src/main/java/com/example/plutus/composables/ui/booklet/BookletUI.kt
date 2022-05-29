@@ -35,9 +35,7 @@ fun BookletGrid(navController: NavController, seleted: MutableState<String>, vie
         LazyVerticalGrid(
             cells = GridCells.Fixed(1)
         ) {
-
             items(viewState.booklets) { item ->
-
                 item.title
                 Card(
                     modifier = Modifier

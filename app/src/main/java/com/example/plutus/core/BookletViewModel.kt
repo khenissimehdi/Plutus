@@ -21,6 +21,9 @@ class BookletViewModel(private val bookletRepo: BookletRepo = Graph.bookletRepos
     val state: StateFlow<HomeBookLetViewState>
         get() = _state
 
+    suspend fun insertBooklet(booklet: Booklet) {
+        bookletRepo.insert(booklet = booklet)
+    }
 
     init {
         viewModelScope.launch {

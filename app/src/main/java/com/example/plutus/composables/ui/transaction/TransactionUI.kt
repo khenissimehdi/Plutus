@@ -106,20 +106,6 @@ fun ShowTransaction(transaction: Transaction, navController: NavController) {
                             },
                             alwaysShowLabel = false
                         )
-
-                        BottomNavigationItem(
-                            icon = {
-                                Icon(Icons.Filled.Info ,  "")
-                            },
-
-                            label = { Text(text = "Rien")},
-                            selected = selectedItem.value == "RIEN",
-                            onClick = {
-                                result.value = "Upload icon clicked"
-                                selectedItem.value = "Info"
-                            },
-                            alwaysShowLabel = false
-                        )
                     }
                 }
             )

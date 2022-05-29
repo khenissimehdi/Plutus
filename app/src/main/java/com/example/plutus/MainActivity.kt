@@ -1,4 +1,5 @@
 package com.example.plutus
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -13,7 +14,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.plutus.composables.actions.transaction.addingTransaction
 import com.example.plutus.composables.actions.transaction.updateTransaction
-import com.example.plutus.composables.ui.HomeUI.ModalBottomSheet
+import com.example.plutus.composables.ui.home.ModalBottomSheet
 import com.example.plutus.composables.ui.transaction.ShowTransaction
 import com.example.plutus.composables.ui.transaction.TransactionGrid
 import com.example.plutus.core.CurrentBookletViewModel
@@ -24,6 +25,7 @@ import com.example.plutus.ui.theme.PlutusTheme
 
 class MainActivity : ComponentActivity() {
 
+    @SuppressLint("RememberReturnType")
     @OptIn(ExperimentalMaterialApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,14 +38,15 @@ class MainActivity : ComponentActivity() {
             val viewModelCurrentBooklet:  CurrentBookletViewModel = viewModel()
             val viewState by viewModel.state.collectAsState()
             val currentBookletState by viewModelCurrentBooklet.state.collectAsState()
-
+            val currentNav =  remember {
+                mutableStateOf("Home")
+            }
             PlutusTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    //Greeting("Android" )
                     NavHost(
                         navController = navController,
                         startDestination = "home"
@@ -55,7 +58,8 @@ class MainActivity : ComponentActivity() {
                                 onCategorySelected = {e -> selected =e} ,
                                 navController = navController,
                                 content = { addingTransaction(navController = navController, currentBookletViewModel = viewModelCurrentBooklet) },
-                                 currentBookletViewModel = viewModelCurrentBooklet
+                                 currentBookletViewModel = viewModelCurrentBooklet,
+                                currentNav = currentNav
                             )
                         }
                         composable(route = "transactions/{id}") {

@@ -52,7 +52,7 @@ object Graph {
 
 
     fun provide(context: Context) {
-        database = Room.databaseBuilder(context, PlutusRoomDatabase::class.java, "plutus2.db").fallbackToDestructiveMigration().build()
+        database = Room.databaseBuilder(context, PlutusRoomDatabase::class.java, "plutus2.db").build()
        // database.clearAllTables()
     }
 
