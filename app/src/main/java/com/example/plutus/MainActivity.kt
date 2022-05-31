@@ -65,23 +65,29 @@ class MainActivity : ComponentActivity() {
                                 categoryViewModel = viewModelCategory
                             )
                         }
-                        composable(route = "transactions/{id}") {
+  /*                      composable(route = "transactions/{id}") {
                             val id = it.arguments?.getString("id")?.toInt()
                             if(id != null) {
                                //TransactionGrid(navController = navController, currentBookletViewModel = viewModelCurrentBooklet, seletedCategory = sel)
                             }
 
-                        }
-                        composable(route = "updateTransaction/{id}") {
+                        }*/
+/*                        composable(route = "updateTransaction/{id}") {
                             val id = it.arguments?.getString("id")?.toInt()
                             if(id != null) {
                                 updateTransaction(navController = navController, id = id)
                             }
-                        }
+                        }*/
                         composable("transaction/{id}") { backStackEntry ->
                             val id = backStackEntry.arguments?.getString("id")?.toInt()
                             if(id != null){
-                                ShowTransaction(viewState.transactions.get(id-1).transaction,navController)
+                                var transact = viewState.transactions.filter { it.transaction.id ==id }.firstOrNull();
+                                if(transact!=null){
+                                    ShowTransaction(transact.transaction,navController,viewModel,viewModelCurrentBooklet, viewModelCategory)
+                                }else{
+                                    //navController.navigate("home")
+                                //navController.navigate("home")
+                                }
                             }}
                     }
                 }

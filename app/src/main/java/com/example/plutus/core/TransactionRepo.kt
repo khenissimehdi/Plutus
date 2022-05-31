@@ -34,4 +34,10 @@ class TransactionRepo(private val transactionDao: TransactionDao) {
     suspend fun updateById(transaction: Transaction) {
         transactionDao.update(transaction = transaction)
     }
+
+    @Suppress("RedundantSuspendModifier")
+    @WorkerThread
+    suspend fun deleteById(id: Int) {
+        transactionDao.deleteTransactionById(id = id)
+    }
 }

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,7 +35,7 @@ import com.example.plutus.R
 }
 
 @Composable
-fun HeaderTransactions() {
+fun HeaderTransactions(moneyState : MutableState<Int>) {
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -51,7 +52,7 @@ fun HeaderTransactions() {
             )
         )
         Text(
-            text = "13.790€",
+            text = "${moneyState.value} €",
             color = Color.White,
             style = TextStyle(
                 fontSize = 42.sp,

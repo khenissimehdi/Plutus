@@ -8,6 +8,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -121,6 +122,8 @@ fun HomeContent(
     val fabShape = RoundedCornerShape(50)
     val viewState by categoryViewModel.state.collectAsState()
 
+    val moneyState = remember { mutableStateOf(0)}
+
 
 
     Scaffold(
@@ -189,7 +192,7 @@ fun HomeContent(
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier.height(160.dp)) {
-                HeaderTransactions()
+                HeaderTransactions(moneyState)
             }
             Card(
                 shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
@@ -215,7 +218,7 @@ fun HomeContent(
                     )
                     if (selectedItem.value.equals("Home")) {
 
-                        TransactionGrid(navController = navController, currentBookletViewModel = viewModel, seletedCategory = selectedCategory.value)
+                        TransactionGrid(navController = navController, currentBookletViewModel = viewModel, seletedCategory = selectedCategory.value,moneyState = moneyState)
                     } else {
                         BookletGrid(navController = navController, seleted = selectedItem, currentBookletViewModel = viewModel, currentNav = currentNav)
                     }

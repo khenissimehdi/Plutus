@@ -2,6 +2,7 @@ package com.example.plutus.composables.ui.transaction
 
 import android.annotation.SuppressLint
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -11,22 +12,31 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.plutus.composables.actions.booklet.addingBooklet
+import com.example.plutus.composables.actions.transaction.updateTransaction
 import com.example.plutus.composables.ui.header.HeaderView
+import com.example.plutus.core.CategoryViewModel
 import com.example.plutus.core.CurrentBookletViewModel
 import com.example.plutus.core.TransactionViewModel
 import com.example.plutus.core.classes.Category
 import com.example.plutus.core.classes.Transaction
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 
 @SuppressLint("SimpleDateFormat")
@@ -35,8 +45,8 @@ import java.text.SimpleDateFormat
 fun TransactionGrid(navController: NavController,
                     viewModel: TransactionViewModel = viewModel(),
                     currentBookletViewModel: CurrentBookletViewModel,
-                    seletedCategory: Category
-
+                    seletedCategory: Category,
+                    moneyState: MutableState<Int>
 ) {
     var infoSelect: Int by remember {
         mutableStateOf(0)
@@ -48,7 +58,7 @@ fun TransactionGrid(navController: NavController,
 
         //Log.i("Categ", c.toString() )
         var transactionByBookletId = viewState.transactions.filter { it.transaction.bookletIdT == currentBookletViewState.bookletcurr.id.toInt()}
-
+        moneyState.value = transactionByBookletId.map { it.transaction.price }.sum();
         LazyVerticalGrid(
             cells = GridCells.Fixed(1)
         ) {
@@ -102,44 +112,73 @@ fun TransactionGrid(navController: NavController,
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun ShowTransaction(transaction: Transaction, navController: NavController) {
+fun ShowTransaction(transaction: Transaction, navController: NavController,viewModel: TransactionViewModel = viewModel(),currentBookletViewModel: CurrentBookletViewModel, categModel: CategoryViewModel) {
 
     val result = remember { mutableStateOf("") }
     val selectedItem = remember { mutableStateOf("upload") }
 
-    Scaffold(
-        modifier = Modifier.padding(bottom = 24.dp),
-        bottomBar = {
-            BottomAppBar(
-                content = {
-                    BottomNavigation() {
-                        BottomNavigationItem(
-                            icon = {
-                                Icon(Icons.Filled.Home , "")
-                            },
-                            label = { Text(text = "All Transaction")},
-                            selected = selectedItem.value == "all Transaction",
-                            onClick = {
-                                navController.navigate("home")
-                            },
-                            alwaysShowLabel = false
-                        )
-                    }
-                }
-            )
-        }
+
+    val coroutineScope = rememberCoroutineScope()
+    val sheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
+
+    ModalBottomSheetLayout(
+        sheetContent = {
+            Card(
+                shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
+                backgroundColor = Color.Black,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = 10.dp)
+
+            ) {
+                updateTransaction(navController = navController, currentBookletViewModel = currentBookletViewModel, categModel = categModel,transaction = transaction)
+            }
+        },
+        sheetState = sheetState,
+        sheetBackgroundColor = Color.Transparent
     ) {
+        Scaffold(
+            modifier = Modifier.padding(bottom = 24.dp),
+            bottomBar = {
+                BottomAppBar(
+                    content = {
+                        BottomNavigation() {
+                            BottomNavigationItem(
+                                icon = {
+                                    Icon(Icons.Filled.Home, "")
+                                },
+                                label = { Text(text = "All Transaction") },
+                                selected = selectedItem.value == "all Transaction",
+                                onClick = {
+                                    navController.navigate("home")
+                                },
+                                alwaysShowLabel = false
+                            )
+                        }
+                    }
+                )
+            }
+        ) {
 
 
-        TransactionLayout(transaction)
+            TransactionLayout(transaction, navController, viewModel, onClick = {
+                coroutineScope.launch {
+                    sheetState.animateTo(ModalBottomSheetValue.Expanded)
+                }})
+        }
     }
 }
 
 @SuppressLint("SimpleDateFormat")
 @Composable
-fun TransactionLayout(transaction: Transaction){
+fun TransactionLayout(transaction: Transaction, navController: NavController,viewModel: TransactionViewModel = viewModel(), onClick :() -> Unit){
     val format = SimpleDateFormat("dd/MM/yyy")
+    val context = LocalContext.current;
+
+    val openDialog = remember { mutableStateOf(false)  }
+
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -164,8 +203,29 @@ fun TransactionLayout(transaction: Transaction){
                     .fillMaxSize()
                     .padding(30.dp)
             ) {
-
-
+                Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
+                    IconButton(modifier = Modifier.
+                    then(Modifier.size(24.dp)),
+                        onClick = {
+                            onClick()
+                        }) {
+                        Icon(
+                            Icons.Filled.Edit,
+                            "Edit",
+                            tint = Color.White)
+                    }
+                    IconButton(modifier = Modifier
+                        .padding(start = 15.dp)
+                        .then(Modifier.size(24.dp)),
+                        onClick = {
+                            openDialog.value = true
+                        }) {
+                        Icon(
+                            Icons.Filled.Delete,
+                            "Delete",
+                            tint = Color.White)
+                    }
+                }
                 Text(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -185,7 +245,8 @@ fun TransactionLayout(transaction: Transaction){
                 Text(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 20.dp, bottom = 20.dp).align(Alignment.CenterHorizontally),
+                        .padding(top = 20.dp, bottom = 20.dp)
+                        .align(Alignment.CenterHorizontally),
                     text = format.format(transaction.date),
                     textAlign = TextAlign.Center,
                     fontSize = 25.sp
@@ -193,6 +254,47 @@ fun TransactionLayout(transaction: Transaction){
 
             }
         }
+    }
+
+    if (openDialog.value) {
+
+        AlertDialog(
+            shape = RoundedCornerShape(14.dp),
+            onDismissRequest = {
+                // Dismiss the dialog when the user clicks outside the dialog or on the back
+                // button. If you want to disable that functionality, simply use an empty
+                // onCloseRequest.
+                openDialog.value = false
+            },
+            title = {
+                Text(fontSize = 22.sp,text = "Do you want to delete the transaction ${transaction.title} ?")
+            },
+            dismissButton = {
+                Button(colors = ButtonDefaults.buttonColors(backgroundColor = Color.Gray),
+                    onClick = {
+                        openDialog.value = false
+                    }) {
+                    Text("Cancel")
+                }
+            },
+            confirmButton = {
+                Button(colors = ButtonDefaults.buttonColors(backgroundColor = Color.Red),
+
+                    onClick = {
+                        openDialog.value = false
+                        CoroutineScope(Dispatchers.IO).launch {
+                            viewModel.deleteById(transaction.id)
+                        }
+                        Toast.makeText(context, "Delete successful for ${transaction.title}", Toast.LENGTH_LONG).show()
+                        navController.navigate("home"){
+
+                            popUpTo("home")
+                        }
+                    }) {
+                    Text("Confirm")
+                }
+            }
+        )
     }
 
 }

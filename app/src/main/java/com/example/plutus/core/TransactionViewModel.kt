@@ -35,6 +35,10 @@ class TransactionViewModel(private val transactionRepo: TransactionRepo = Graph.
         transactionRepo.updateById(transaction = transaction);
     }
 
+    suspend fun deleteById(id: Int) {
+        transactionRepo.deleteById(id = id);
+    }
+
     suspend fun getTransactionById(id: Int): Transaction {
         return transactionRepo.getTransactionById(id = id)
     }
