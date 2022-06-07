@@ -12,19 +12,17 @@ import org.json.JSONObject
  class BitMapUtils {
 
 
-
-
     companion object {
         private var cachedFlag: Bitmap? = null
         fun getIcon(context: Context, name: String): Bitmap? {
             return cachedFlag ?: run {
-                cachedFlag = loadFlag(context, name)
+                cachedFlag = loadImage(context, name)
                 Log.d("bitmap", "$cachedFlag")
                 cachedFlag
             }
         }
         private const val ICONS_DIRECTORY = "icons"
-        private fun loadFlag(context: Context, code: String): Bitmap {
+        private fun loadImage(context: Context, code: String): Bitmap {
             return context.assets.open("$ICONS_DIRECTORY/${code.lowercase()}.png").use {
                 BitmapFactory.decodeStream(it)
             }

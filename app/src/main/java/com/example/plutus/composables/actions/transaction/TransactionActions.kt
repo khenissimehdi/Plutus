@@ -1,19 +1,24 @@
 package com.example.plutus.composables.actions.transaction
 
 import UIDatePicker
+import android.app.Application
+import android.content.Context
 import android.util.Log
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -21,6 +26,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.plutus.BitMapUtils
 import com.example.plutus.composables.ui.dropDownSelect.DropDownInput
 import com.example.plutus.core.CategoryViewModel
 import com.example.plutus.core.CurrentBookletViewModel
@@ -51,7 +57,19 @@ fun addingTransaction(viewModel: TransactionViewModel = viewModel(), navControll
             val keyboardController = LocalSoftwareKeyboardController.current
             val viewState by currentBookletViewModel.state.collectAsState()
             val categViewState by categModel.state.collectAsState()
+            if (viewState.bookletcurr!!.id.toInt()  == -1) {
+               var icon =  BitMapUtils.getIcon(LocalContext.current, "addbooklet")
+                Column( modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
+                    if (icon != null) {
+                        Image(bitmap = icon.asImageBitmap(), contentDescription = "not found")
+                    }
+                    Text(text = "You have to add a booklet !")
+                }
 
+                return@Scaffold
+            }
+
+            
             val seleted = remember {
                 mutableStateOf(0)
             }
@@ -100,7 +118,7 @@ fun addingTransaction(viewModel: TransactionViewModel = viewModel(), navControll
                     ,onClick = {
                         if(text.text.isNotEmpty()){
                             CoroutineScope(Dispatchers.IO).launch {
-                                val id = viewState.bookletcurr.id
+                                val id = viewState.bookletcurr!!.id
                                 val ids =  categViewState.categories.map { e -> e.id }
                                 Log.i("sting", seletedString.value)
                                 if(!ids.contains(seleted.value.toLong())) {
@@ -193,7 +211,7 @@ fun updateTransaction(viewModel: TransactionViewModel = viewModel(), navControll
                     ,onClick = {
                         if(text.text.isNotEmpty()){
                             CoroutineScope(Dispatchers.IO).launch {
-                                val id = viewState.bookletcurr.id
+                                val id = viewState.bookletcurr!!.id
                                 val ids =  categViewState.categories.map { e -> e.id }
                                 Log.i("sting", seletedString.value)
                                 if(!ids.contains(seleted.value.toLong())) {

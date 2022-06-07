@@ -12,7 +12,7 @@ interface CurrentBookletDao {
     fun insertCurrentBooklet(currentBooklet: CurrentBooklet)
 
     @Query("SELECT * FROM  currentBooklet LIMIT 1")
-    fun getCurrentBooklet(): CurrentBooklet
+    fun getCurrentBooklet(): CurrentBooklet?
 
     @Query("DELETE FROM currentBooklet WHERE currentBookletId = :id")
     fun deleteCurrentBooklet(id: Int)

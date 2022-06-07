@@ -9,7 +9,7 @@ import com.example.plutus.core.dao.CurrentBookletDao
 import kotlinx.coroutines.flow.Flow
 
 class CurrentBookletRepo(val currentBookletDao: CurrentBookletDao) {
-    fun currentBookLet(): CurrentBooklet = currentBookletDao.getCurrentBooklet()
+    fun currentBookLet(): CurrentBooklet? = currentBookletDao.getCurrentBooklet()
     @Suppress("RedundantSuspendModifier")
     @WorkerThread
     suspend fun update(currentBooklet: CurrentBooklet, oldBookletId: Int) {

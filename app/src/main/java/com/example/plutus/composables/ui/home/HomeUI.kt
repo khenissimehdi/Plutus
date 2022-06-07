@@ -116,7 +116,7 @@ fun HomeContent(
     onClick: () -> Unit,
     categoryViewModel: CategoryViewModel
 ) {
-    val selectedCategory = remember { mutableStateOf(Category(1,"1")) }
+    val selectedCategory = remember { mutableStateOf(Category(Int.MAX_VALUE.toLong(),"all")) }
     val result = remember { mutableStateOf("") }
     val selectedItem = remember { mutableStateOf("Home") }
     val fabShape = RoundedCornerShape(50)

@@ -14,28 +14,36 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 data class HomeCurrentBookLetViewState(
-    var bookletcurr: CurrentBooklet = CurrentBooklet()
+    var bookletcurr: CurrentBooklet?
 )
 
 @OptIn(InternalCoroutinesApi::class)
 class CurrentBookletViewModel(private val currentBookletRepo: CurrentBookletRepo = Graph.currentBookletRepository) : ViewModel() {
-    private val _state = MutableStateFlow(HomeCurrentBookLetViewState())
+    private val _state = MutableStateFlow(HomeCurrentBookLetViewState(CurrentBooklet(-1)))
+
+
     val state: StateFlow<HomeCurrentBookLetViewState>
         get() = _state
 
     suspend fun update(id: Long): Boolean {
         val currBookelt = CurrentBooklet(id)
+        if(_state.value.bookletcurr != null) {
+            currentBookletRepo.insert(currentBooklet = currBookelt, _state.value.bookletcurr!!.id.toInt())
+            _state.value = HomeCurrentBookLetViewState(bookletcurr = currBookelt)
+            return true
+        }
+        return false
 
-        currentBookletRepo.insert(currentBooklet = currBookelt, _state.value.bookletcurr.id.toInt())
-        _state.value = HomeCurrentBookLetViewState(bookletcurr = currBookelt)
-        return true
     }
+
 
     init {
         viewModelScope.launch {
             CoroutineScope(Dispatchers.IO).launch {
                 val value =  currentBookletRepo.currentBookLet()
-               _state.value = HomeCurrentBookLetViewState(bookletcurr = value)
+                if(value != null) {
+                    _state.value = HomeCurrentBookLetViewState(bookletcurr = value)
+                }
             }
         }
     }

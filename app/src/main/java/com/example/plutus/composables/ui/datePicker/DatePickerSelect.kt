@@ -63,7 +63,6 @@ fun UIDatePicker(dateState: MutableState<Date>) {
     )
 
     Row(modifier = Modifier.width(200.dp)) {
-
         // Creating a button that on
         // click displays/shows the DatePickerDialog
         Button(onClick = {

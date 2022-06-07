@@ -31,7 +31,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            var selected  = Category(1,"1")
+            var selected  = Category(Int.MAX_VALUE.toLong(),"all")
 
             val navController: NavHostController = rememberNavController()
 

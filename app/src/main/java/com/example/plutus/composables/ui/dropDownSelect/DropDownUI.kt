@@ -32,9 +32,7 @@ import androidx.compose.ui.unit.toSize
 // in the above function
 @Composable
 fun DropDownInput(selected: MutableState<Int>,selectedString: MutableState<String>, categories: List<String> ){
-    if(categories.isEmpty()) {
-        return
-    }
+
     // Declaring a boolean value to store 
     // the expanded state of the Text Field
     var mExpanded by remember { mutableStateOf(false) }
@@ -81,16 +79,18 @@ fun DropDownInput(selected: MutableState<Int>,selectedString: MutableState<Strin
             modifier = Modifier
                 .width(with(LocalDensity.current){mTextFieldSize.width.toDp()})
         ) {
-            categories.forEach { label ->
-                DropdownMenuItem(onClick = {
-                    mSelectedText = label
-                    selectedString.value = label
-                    selected.value = categories.indexOf(mSelectedText)+1;
-                    mExpanded = false
-                }) {
+            if(categories.isNotEmpty()) {
+                categories.forEach { label ->
+                    DropdownMenuItem(onClick = {
+                        mSelectedText = label
+                        selectedString.value = label
+                        selected.value = categories.indexOf(mSelectedText)+1;
+                        mExpanded = false
+                    }) {
 
-                    Text(text = label )
+                        Text(text = label )
 
+                    }
                 }
             }
         }

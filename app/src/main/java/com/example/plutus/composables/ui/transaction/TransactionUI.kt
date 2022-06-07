@@ -33,6 +33,7 @@ import com.example.plutus.core.CategoryViewModel
 import com.example.plutus.core.CurrentBookletViewModel
 import com.example.plutus.core.TransactionViewModel
 import com.example.plutus.core.classes.Category
+import com.example.plutus.core.classes.Possede
 import com.example.plutus.core.classes.Transaction
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -54,59 +55,117 @@ fun TransactionGrid(navController: NavController,
     val viewState by viewModel.state.collectAsState()
     val currentBookletViewState by currentBookletViewModel.state.collectAsState()
     val format = SimpleDateFormat("dd/MM/yyy")
-    if (!viewState.transactions.isEmpty()) {
-
-        //Log.i("Categ", c.toString() )
-        var transactionByBookletId = viewState.transactions.filter { it.transaction.bookletIdT == currentBookletViewState.bookletcurr.id.toInt()}
-        moneyState.value = transactionByBookletId.map { it.transaction.price }.sum();
+    if (viewState.transactions.isNotEmpty()) {
+        val transactionByBookletId = viewState.transactions.filter { it.transaction.bookletIdT == currentBookletViewState.bookletcurr!!.id.toInt()}
+        moneyState.value = transactionByBookletId.map { it.transaction.price }.sum()
         LazyVerticalGrid(
             cells = GridCells.Fixed(1)
         ) {
 
             items(transactionByBookletId) { item ->
-
                 item.transaction.title;
                 val textColor = if (item.transaction.price <0) Color.Red else Color.Green
-
-              if(item.categories.isNotEmpty() && item.categories[0] .id == seletedCategory.id) {
-                    Card(
-                        shape = RoundedCornerShape(14.dp),
-                        backgroundColor = Color.White,
-                        modifier = Modifier
-                            .padding(10.dp)
-                            .width(180.dp)
-                            .clickable { navController.navigate("transaction/${item.transaction.id}") },
-                        elevation = 10.dp
-
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(15.dp)
-                        ) {
-                            Text(
-                                text = item.transaction.title,
-                                style = TextStyle(
-                                    color = Color.Gray,
-                                    fontSize = 16.sp
-                                )
-                            )
-                            Text(
-                                text = "${item.transaction.price} €",
-                                style =  TextStyle(
-                                    color = textColor,
-                                    fontSize = 16.sp
-                                )
-                            )
-                            Text(
-                                text = format.format(item.transaction.date),
-                                style =  TextStyle(
-                                    color = Color.Gray,
-                                    fontSize = 16.sp
-                                )
-                            )
-                        }
-                    }
+                val categIdList = item.categories.map { e -> e.id }
+                if(seletedCategory.title == "all") {
+                    showALl(item,navController, textColor, format)
+                } else {
+                    showByCateg(item, categIdList, seletedCategory, navController, textColor, format)
                 }
+            }
+        }
+    }
+}
 
+@Composable
+private fun showALl(
+    item: Possede,
+    navController: NavController,
+    textColor: Color,
+    format: SimpleDateFormat
+) {
+        Card(
+            shape = RoundedCornerShape(14.dp),
+            backgroundColor = Color.White,
+            modifier = Modifier
+                .padding(10.dp)
+                .width(180.dp)
+                .clickable { navController.navigate("transaction/${item.transaction.id}") },
+            elevation = 10.dp
+
+        ) {
+            Column(
+                modifier = Modifier.padding(15.dp)
+            ) {
+                Text(
+                    text = item.transaction.title,
+                    style = TextStyle(
+                        color = Color.Gray,
+                        fontSize = 16.sp
+                    )
+                )
+                Text(
+                    text = "${item.transaction.price} €",
+                    style = TextStyle(
+                        color = textColor,
+                        fontSize = 16.sp
+                    )
+                )
+                Text(
+                    text = format.format(item.transaction.date),
+                    style = TextStyle(
+                        color = Color.Gray,
+                        fontSize = 16.sp
+                    )
+                )
+            }
+        }
+}
+
+
+@Composable
+private fun showByCateg(
+    item: Possede,
+    categIdList: List<Long>,
+    seletedCategory: Category,
+    navController: NavController,
+    textColor: Color,
+    format: SimpleDateFormat
+) {
+    if (item.categories.isNotEmpty() && categIdList.contains(seletedCategory.id)) {
+        Card(
+            shape = RoundedCornerShape(14.dp),
+            backgroundColor = Color.White,
+            modifier = Modifier
+                .padding(10.dp)
+                .width(180.dp)
+                .clickable { navController.navigate("transaction/${item.transaction.id}") },
+            elevation = 10.dp
+
+        ) {
+            Column(
+                modifier = Modifier.padding(15.dp)
+            ) {
+                Text(
+                    text = item.transaction.title,
+                    style = TextStyle(
+                        color = Color.Gray,
+                        fontSize = 16.sp
+                    )
+                )
+                Text(
+                    text = "${item.transaction.price} €",
+                    style = TextStyle(
+                        color = textColor,
+                        fontSize = 16.sp
+                    )
+                )
+                Text(
+                    text = format.format(item.transaction.date),
+                    style = TextStyle(
+                        color = Color.Gray,
+                        fontSize = 16.sp
+                    )
+                )
             }
         }
     }
