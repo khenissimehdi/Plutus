@@ -21,7 +21,8 @@ object Graph {
 
     val categoryRepository by lazy {
         TransactionRepo(
-            transactionDao = database.noteDao()
+            transactionDao = database.noteDao(),
+            possedeCrossRefDao = database.possedeRefDao()
         )
     }
 

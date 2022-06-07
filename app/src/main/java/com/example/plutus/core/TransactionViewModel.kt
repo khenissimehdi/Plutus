@@ -31,8 +31,8 @@ class TransactionViewModel(private val transactionRepo: TransactionRepo = Graph.
             transactionRepo.insertTransactionGategAndAction(transaction = transaction, categoryId = categoryId)
     }
 
-    suspend fun updateById(transaction: Transaction) {
-        transactionRepo.updateById(transaction = transaction);
+    suspend fun updateByTrans(transaction: Transaction, categoryId: Int) {
+        transactionRepo.updateById(transaction = transaction, categoryId = categoryId);
     }
 
     suspend fun deleteById(id: Int) {

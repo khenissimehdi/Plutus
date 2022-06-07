@@ -216,19 +216,25 @@ fun updateTransaction(viewModel: TransactionViewModel = viewModel(), navControll
                                 Log.i("sting", seletedString.value)
                                 if(!ids.contains(seleted.value.toLong())) {
                                     val idCateg = categModel.insert(seletedString.value)
-                                    viewModel.insert(title = text.text,date.value, price.text.toInt(),5,id.toInt(),
-                                        idCateg.toInt());
+                                    transaction.date = date.value;
+                                    transaction.price = price.text.toInt()
+                                    transaction.title = text.text
+                                    transaction.bookletIdT = id.toInt();
 
+                                    viewModel.updateByTrans(transaction, idCateg.toInt())
                                 } else {
-                                    viewModel.insert(title = text.text,date.value, price.text.toInt(),5,id.toInt(),
-                                        seleted.value);
 
+                                    transaction.date = date.value;
+                                    transaction.price = price.text.toInt()
+                                    transaction.title = text.text
+                                    transaction.bookletIdT = id.toInt();
+                                    viewModel.updateByTrans(transaction, seleted.value)
                                 }
                             }
                             navController.navigate("home")
                         }
                     }) {
-                    Text(text = "ADD")
+                    Text(text = "EDIT")
                 }
             }
         }

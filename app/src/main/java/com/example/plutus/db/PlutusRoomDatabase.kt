@@ -31,6 +31,7 @@ abstract class PlutusRoomDatabase : RoomDatabase() {
     abstract fun currentBookletDao(): CurrentBookletDao
     abstract fun actionDao(): ActionDao
     abstract fun categoryDao(): CategoryDao
+    abstract fun possedeRefDao(): PossedeCrossRefDao
 
 }
 

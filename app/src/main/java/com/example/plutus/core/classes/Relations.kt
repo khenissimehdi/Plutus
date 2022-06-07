@@ -22,7 +22,7 @@ data class ActionAndTransactions(@Embedded val action: Action,
 
 
 @Entity(primaryKeys = ["transactionId", "categoryId"])
-data class PossedeCrossRef (
+ data class PossedeCrossRef (
     var transactionId: Int,
     var categoryId: Int
 )

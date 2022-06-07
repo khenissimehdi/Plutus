@@ -21,8 +21,12 @@ interface TransactionDao {
 
     @Update(entity = Transaction::class,onConflict = OnConflictStrategy.REPLACE)
     fun update(transaction: Transaction)
+
     @Insert
     fun insert(join: PossedeCrossRef)
+
+    @Update(onConflict = OnConflictStrategy.REPLACE)
+    fun update(join: PossedeCrossRef)
 
     @androidx.room.Transaction
     @Query("SELECT * FROM transactions")

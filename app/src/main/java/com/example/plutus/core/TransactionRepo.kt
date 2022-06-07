@@ -5,10 +5,11 @@ import com.example.plutus.core.classes.Action
 import com.example.plutus.core.classes.Possede
 import com.example.plutus.core.classes.PossedeCrossRef
 import com.example.plutus.core.classes.Transaction
+import com.example.plutus.core.dao.PossedeCrossRefDao
 import com.example.plutus.core.dao.TransactionDao
 import kotlinx.coroutines.flow.Flow
 
-class TransactionRepo(private val transactionDao: TransactionDao) {
+class TransactionRepo(private val transactionDao: TransactionDao, private val possedeCrossRefDao: PossedeCrossRefDao) {
     fun allTransaction(): Flow<List<Possede>> = transactionDao.getAllTransaction();
     @Suppress("RedundantSuspendModifier")
     @WorkerThread
@@ -19,7 +20,7 @@ class TransactionRepo(private val transactionDao: TransactionDao) {
     @Suppress("RedundantSuspendModifier")
     @WorkerThread
     suspend fun insertTransactionGategAndAction(transaction: Transaction, categoryId: Int) {
-        var id = transactionDao.insertTransaction(transaction = transaction)
+        val id = transactionDao.insertTransaction(transaction = transaction)
         transactionDao.insert(join = PossedeCrossRef(transactionId = id.toInt(), categoryId = categoryId))
     }
 
@@ -31,7 +32,10 @@ class TransactionRepo(private val transactionDao: TransactionDao) {
 
     @Suppress("RedundantSuspendModifier")
     @WorkerThread
-    suspend fun updateById(transaction: Transaction) {
+    suspend fun updateById(transaction: Transaction, categoryId: Int) {
+        var possedeRef = possedeCrossRefDao.findTransactionById(transaction.id)
+        possedeRef.categoryId = categoryId
+        possedeCrossRefDao.update(transaction.id, categoryId)
         transactionDao.update(transaction = transaction)
     }
 
