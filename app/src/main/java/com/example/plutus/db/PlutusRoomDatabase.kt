@@ -12,9 +12,16 @@ import kotlinx.coroutines.internal.synchronized
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
+
+val entities = arrayOf(Transaction::class,
+    Action::class,
+    Booklet::class,
+    Category::class,
+    PossedeCrossRef::class,
+    CurrentBooklet::class)
+
 @Database(
-    entities = [
-        Transaction::class,
+    entities = [Transaction::class,
         Action::class,
         Booklet::class,
         Category::class,
@@ -33,6 +40,10 @@ abstract class PlutusRoomDatabase : RoomDatabase() {
     abstract fun categoryDao(): CategoryDao
     abstract fun possedeRefDao(): PossedeCrossRefDao
 
+
+    fun getTablesNames(): List<String> {
+        return listOf("transactions","booklet","category", "currentBooklet","action", "PossedeCrossRef" );
+    }
 }
 
 

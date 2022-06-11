@@ -6,8 +6,10 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.GridCells
-import androidx.compose.foundation.lazy.LazyVerticalGrid
+import androidx.compose.foundation.lazy.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -43,17 +45,13 @@ import java.util.logging.SimpleFormatter
 @Composable
 fun BookletGrid(navController: NavController,onClick: () -> Unit, seleted: MutableState<String>, viewModel: BookletViewModel = viewModel(), editButtonClicked: MutableState<Boolean>,
                 bookletToEdit: MutableState<Booklet>, currentBookletViewModel: CurrentBookletViewModel, currentNav: MutableState<String>) {
-    var infoSelect: Int by remember {
-        mutableStateOf(0)
-    }
     val format = SimpleDateFormat("dd/MM/yyy")
     val viewState by viewModel.state.collectAsState()
     val currentBookletViewState by currentBookletViewModel.state.collectAsState()
-    val modalState =  remember {mutableStateOf(false)};
 
     if (!viewState.booklets.isEmpty()) {
-        LazyVerticalGrid(
-            cells = GridCells.Fixed(1)
+      LazyVerticalGrid(
+            columns = GridCells.Fixed(1)
         ) {
             items(viewState.booklets) { item ->
                 item.title

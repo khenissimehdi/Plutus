@@ -1,9 +1,16 @@
 package com.example.plutus.composables.ui.home
 
 
+import android.Manifest
+import android.annotation.SuppressLint
+import android.os.Build
 import android.util.Log
+import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -14,9 +21,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.plutus.ExportUtils
+import com.example.plutus.Graph
 import com.example.plutus.composables.actions.booklet.addingBooklet
 import com.example.plutus.composables.actions.booklet.updateBooklet
 
@@ -31,9 +42,17 @@ import com.example.plutus.core.CurrentBookletViewModel
 import com.example.plutus.core.TransactionViewModel
 import com.example.plutus.core.classes.Booklet
 import com.example.plutus.core.classes.Category
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.PermissionStatus
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 
+
+@SuppressLint("CoroutineCreationDuringComposition")
 @OptIn(ExperimentalComposeUiApi::class)
 @ExperimentalMaterialApi
 @Composable
@@ -65,19 +84,19 @@ fun ModalBottomSheet(viewModel: TransactionViewModel = viewModel(),
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(top = 10.dp)
-
             ) {
 
                 if(currentNav.value.equals("Home") ) {
-                    content()
+                   content()
+                } else {
+                    if(editButtonClicked.value) {
+                        updateBooklet(navController = navController, currentBookletViewModel = currentBookletViewModel, booklet =  bookletToEdit.value)
+                    }
+                    if(!editButtonClicked.value) {
+                        addingBooklet(navController = navController, currentBookletViewModel = currentBookletViewModel)
+                    }
+                }
 
-                }
-                if(editButtonClicked.value) {
-                    updateBooklet(navController = navController, currentBookletViewModel = currentBookletViewModel, booklet =  bookletToEdit.value)
-                }
-                if(!editButtonClicked.value) {
-                    addingBooklet(navController = navController, currentBookletViewModel = currentBookletViewModel)
-                }
             }
         },
         sheetState = sheetState,
@@ -126,7 +145,7 @@ fun MainContent(selectedCategory2: Category,
 }
 
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalPermissionsApi::class)
 @Composable
 fun HomeContent(
     selectedCategory2: Category,
@@ -146,8 +165,12 @@ fun HomeContent(
     val viewState by categoryViewModel.state.collectAsState()
 
     val moneyState = remember { mutableStateOf(0)}
+    val openDialog = remember { mutableStateOf(false) }
+    val doneExport = remember { mutableStateOf(false) }
 
-
+    val writePermissionState = rememberPermissionState(
+        Manifest.permission.WRITE_EXTERNAL_STORAGE
+    )
 
     Scaffold(
         modifier = Modifier.padding(bottom = 24.dp),
@@ -211,9 +234,40 @@ fun HomeContent(
         ) {
             Box(
                 contentAlignment = Alignment.Center,
-                modifier = Modifier.height(160.dp)) {
+                modifier = Modifier.height(160.dp)
+            ) {
+
                 HeaderTransactions(moneyState)
+
+
             }
+            Button(onClick = {
+                if (writePermissionState.status.isGranted) {
+                    ExportUtils.export(Graph.database, doneExport)
+
+                } else {
+                    openDialog.value = true
+                }
+            }) {
+                Text(text = "Export")
+
+            }
+            if (doneExport.value) {
+                CustomDialogScrollable(
+                    title = "File Exported !",
+                    msg = "You can find your files in the Download Folder",
+                    onDismiss = {doneExport.value = false}
+                )
+            }
+
+            if (openDialog.value) {
+                CustomDialogScrollable(
+                    title = "Give full file access",
+                    msg = "To change file access go to setting look for the application name and change the settings to grant full access to files  ",
+                    onDismiss = {openDialog.value = false}
+                )
+            }
+
             Card(
                 shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
                 backgroundColor = Color.DarkGray,
@@ -240,7 +294,8 @@ fun HomeContent(
                             navController = navController,
                             currentBookletViewModel = viewModel,
                             seletedCategory = selectedCategory.value,
-                            moneyState = moneyState)
+                            moneyState = moneyState
+                        )
                     } else {
                         BookletGrid(
                             navController = navController,
@@ -249,12 +304,55 @@ fun HomeContent(
                             bookletToEdit = bookletToEdit,
                             onClick = onClick,
                             currentBookletViewModel = viewModel,
-                            currentNav = currentNav, )
+                            currentNav = currentNav,
+                        )
                     }
 
                 }
             }
 
+        }
+
+    }
+}
+
+@Composable
+fun CustomDialogScrollable(
+    title: String,
+    msg: String,
+    onDismiss: () -> Unit,
+) {
+    Dialog(
+        onDismissRequest = onDismiss,
+    ) {
+        Surface(
+            shape = MaterialTheme.shapes.medium,
+            color = MaterialTheme.colors.surface,
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                // TITLE
+                Text(text = title, style = MaterialTheme.typography.subtitle1)
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState())
+                        .weight(weight = 1f, fill = false)
+                        .padding(vertical = 16.dp)
+                ) {
+                    Text(
+                        text = msg,
+                        style = MaterialTheme.typography.body2
+                    )
+                }
+
+                // BUTTONS
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                    TextButton(onClick = onDismiss) {
+                        Text(text = "OK")
+                    }
+                }
+            }
         }
     }
 }

@@ -102,7 +102,6 @@ fun updateBooklet(viewModel: BookletViewModel = viewModel(), navController: NavC
             //keyboard stuff
             val (focusRequester) = FocusRequester.createRefs()
             val keyboardController = LocalSoftwareKeyboardController.current
-            val viewState by currentBookletViewModel.state.collectAsState()
             var accepteTransaction  by remember { mutableStateOf(false) }
 
             Column(modifier = Modifier.padding(50.dp)) {

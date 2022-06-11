@@ -1,5 +1,8 @@
 package com.example.plutus
+import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -7,6 +10,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -48,12 +52,14 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
+
                     NavHost(
                         navController = navController,
                         startDestination = "home"
                     ) {
 
                         composable(route = "home") {
+
                             ModalBottomSheet(
                                 selectedCategory2 = selected,
                                 onCategorySelected = {e -> selected =e} ,

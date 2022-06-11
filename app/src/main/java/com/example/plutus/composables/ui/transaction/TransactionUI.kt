@@ -6,8 +6,9 @@ import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.GridCells
-import androidx.compose.foundation.lazy.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -59,9 +60,8 @@ fun TransactionGrid(navController: NavController,
         val transactionByBookletId = viewState.transactions.filter { it.transaction.bookletIdT == currentBookletViewState.bookletcurr!!.id.toInt()}
         moneyState.value = transactionByBookletId.map { it.transaction.price }.sum()
         LazyVerticalGrid(
-            cells = GridCells.Fixed(1)
+            columns = GridCells.Fixed(1)
         ) {
-
             items(transactionByBookletId) { item ->
                 item.transaction.title;
                 val textColor = if (item.transaction.price <0) Color.Red else Color.Green

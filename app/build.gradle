@@ -4,6 +4,8 @@ plugins {
     id 'kotlin-kapt'
 }
 
+
+
 android {
     compileSdk 32
 
@@ -19,6 +21,8 @@ android {
             useSupportLibrary true
         }
     }
+
+
 
     kapt {
         arguments {
@@ -55,6 +59,7 @@ android {
 
 dependencies {
 
+    implementation "com.google.accompanist:accompanist-permissions:0.24.10-beta"
     implementation 'androidx.room:room-runtime:2.4.2'
     implementation 'androidx.navigation:navigation-runtime-ktx:2.4.2'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'

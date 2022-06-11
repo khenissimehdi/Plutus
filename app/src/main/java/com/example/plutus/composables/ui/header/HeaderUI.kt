@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -42,7 +43,6 @@ fun HeaderTransactions(moneyState : MutableState<Int>) {
         modifier = Modifier.padding(bottom = 20.dp, top=60.dp)
     ) {
 
-
         Text(
             text = "Total Balance",
             color = Color.White,
@@ -60,6 +60,7 @@ fun HeaderTransactions(moneyState : MutableState<Int>) {
                 fontWeight = FontWeight(500)
             )
         )
+
 
     }
 
