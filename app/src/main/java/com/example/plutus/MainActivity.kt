@@ -39,7 +39,6 @@ class MainActivity : ComponentActivity() {
             val viewModelCurrentBooklet:  CurrentBookletViewModel = viewModel()
             val viewModelCategory:  CategoryViewModel = viewModel()
             val viewState by viewModel.state.collectAsState()
-            val currentBookletState by viewModelCurrentBooklet.state.collectAsState()
             val currentNav =  remember {
                 mutableStateOf("Home")
             }
@@ -65,28 +64,12 @@ class MainActivity : ComponentActivity() {
                                 categoryViewModel = viewModelCategory
                             )
                         }
-  /*                      composable(route = "transactions/{id}") {
-                            val id = it.arguments?.getString("id")?.toInt()
-                            if(id != null) {
-                               //TransactionGrid(navController = navController, currentBookletViewModel = viewModelCurrentBooklet, seletedCategory = sel)
-                            }
-
-                        }*/
-/*                        composable(route = "updateTransaction/{id}") {
-                            val id = it.arguments?.getString("id")?.toInt()
-                            if(id != null) {
-                                updateTransaction(navController = navController, id = id)
-                            }
-                        }*/
                         composable("transaction/{id}") { backStackEntry ->
                             val id = backStackEntry.arguments?.getString("id")?.toInt()
                             if(id != null){
-                                var transact = viewState.transactions.filter { it.transaction.id ==id }.firstOrNull();
+                                val transact = viewState.transactions.filter { it.transaction.id ==id }.firstOrNull();
                                 if(transact!=null){
                                     ShowTransaction(transact.transaction,navController,viewModel,viewModelCurrentBooklet, viewModelCategory)
-                                }else{
-                                    //navController.navigate("home")
-                                //navController.navigate("home")
                                 }
                             }}
                     }

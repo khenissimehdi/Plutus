@@ -87,3 +87,69 @@ fun addingBooklet(viewModel: BookletViewModel = viewModel(), navController: NavC
     )
 }
 
+
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterialApi::class)
+@Composable
+fun updateBooklet(viewModel: BookletViewModel = viewModel(), navController: NavController, currentBookletViewModel: CurrentBookletViewModel, booklet: Booklet){
+    Scaffold(
+        topBar = {
+
+        },
+        content = {
+            var text by remember { mutableStateOf(TextFieldValue(booklet.title)) }
+
+            var date = remember { mutableStateOf(booklet.date)}
+            //keyboard stuff
+            val (focusRequester) = FocusRequester.createRefs()
+            val keyboardController = LocalSoftwareKeyboardController.current
+            val viewState by currentBookletViewModel.state.collectAsState()
+            var accepteTransaction  by remember { mutableStateOf(false) }
+
+            Column(modifier = Modifier.padding(50.dp)) {
+                UIDatePicker(date)
+                OutlinedTextField(
+                    value = text,
+                    onValueChange = { newText ->
+                        text = newText
+                        accepteTransaction = text.text.isNotEmpty()
+                    },
+                    label = { Text(text = "Title") },
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(
+                        onDone = { keyboardController?.hide()
+                            //accepteTransaction = true
+                        }
+                    ),
+                    modifier = Modifier.focusRequester(focusRequester),
+                )
+
+                Button(modifier = Modifier.padding(20.dp),
+                    enabled = accepteTransaction
+                    ,onClick = {
+                        if(text.text.isNotEmpty()){
+                            CoroutineScope(Dispatchers.IO).launch {
+                               // var booklet = Booklet(title = text.text, date = date.value)
+                                booklet.title = text.text
+                                booklet.date = date.value
+                                viewModel.updateBooklet(booklet)
+
+                            }
+                            navController.navigate("home")
+                        }
+                    }) {
+                    Text(text = "EDIT")
+                }
+            }
+        }
+    )
+}
+
+
+
+
+
+
+
+
+
+

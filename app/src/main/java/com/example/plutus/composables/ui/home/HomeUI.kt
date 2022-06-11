@@ -1,5 +1,6 @@
 package com.example.plutus.composables.ui.home
 
+
 import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -8,7 +9,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -18,15 +18,18 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.plutus.composables.actions.booklet.addingBooklet
+import com.example.plutus.composables.actions.booklet.updateBooklet
 
 import com.example.plutus.composables.ui.category.*
 
 import com.example.plutus.composables.ui.booklet.BookletGrid
+import com.example.plutus.composables.ui.booklet.EditBookletModal
 import com.example.plutus.composables.ui.header.HeaderTransactions
 import com.example.plutus.composables.ui.transaction.TransactionGrid
 import com.example.plutus.core.CategoryViewModel
 import com.example.plutus.core.CurrentBookletViewModel
 import com.example.plutus.core.TransactionViewModel
+import com.example.plutus.core.classes.Booklet
 import com.example.plutus.core.classes.Category
 import kotlinx.coroutines.launch
 
@@ -46,6 +49,13 @@ fun ModalBottomSheet(viewModel: TransactionViewModel = viewModel(),
                      ) {
     val coroutineScope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
+    val bookletToEdit = remember {
+        mutableStateOf(Booklet())
+    }
+    val editButtonClicked = remember {
+        mutableStateOf(false)
+    }
+
 
     ModalBottomSheetLayout(
         sheetContent = {
@@ -58,12 +68,16 @@ fun ModalBottomSheet(viewModel: TransactionViewModel = viewModel(),
 
             ) {
 
-                if(currentNav.value.equals("Home")) {
+                if(currentNav.value.equals("Home") ) {
                     content()
-                } else {
+
+                }
+                if(editButtonClicked.value) {
+                    updateBooklet(navController = navController, currentBookletViewModel = currentBookletViewModel, booklet =  bookletToEdit.value)
+                }
+                if(!editButtonClicked.value) {
                     addingBooklet(navController = navController, currentBookletViewModel = currentBookletViewModel)
                 }
-
             }
         },
         sheetState = sheetState,
@@ -73,10 +87,13 @@ fun ModalBottomSheet(viewModel: TransactionViewModel = viewModel(),
             selectedCategory2 = selectedCategory2,
             onCategorySelected =  onCategorySelected,
             navController = navController,
+            editButtonClicked = editButtonClicked,
+            bookletToEdit = bookletToEdit,
             currentNav = currentNav,
             onClick = {
                 coroutineScope.launch {
                     sheetState.animateTo(ModalBottomSheetValue.Expanded)
+
                 }}, viewModel = currentBookletViewModel, categoryViewModel = categoryViewModel )
     }
 }
@@ -86,6 +103,8 @@ fun MainContent(selectedCategory2: Category,
                 viewModel: CurrentBookletViewModel,
                 onCategorySelected: (Category) -> Unit,
                 navController: NavController,
+                editButtonClicked: MutableState<Boolean>,
+                bookletToEdit: MutableState<Booklet>,
                 onClick: () -> Unit,
                 currentNav: MutableState<String>,
                 modifier: Modifier = Modifier,
@@ -97,6 +116,8 @@ fun MainContent(selectedCategory2: Category,
         onCategorySelected = onCategorySelected,
         navController = navController,
         currentNav = currentNav,
+        editButtonClicked = editButtonClicked,
+        bookletToEdit = bookletToEdit,
         onClick = onClick,
         viewModel = viewModel,
         categoryViewModel = categoryViewModel
@@ -112,6 +133,8 @@ fun HomeContent(
     onCategorySelected: (Category) -> Unit,
     viewModel: CurrentBookletViewModel,
     currentNav: MutableState<String>,
+    editButtonClicked: MutableState<Boolean>,
+    bookletToEdit: MutableState<Booklet>,
     navController: NavController,
     onClick: () -> Unit,
     categoryViewModel: CategoryViewModel
@@ -131,7 +154,10 @@ fun HomeContent(
         floatingActionButton = {
 
             FloatingActionButton(
-                onClick =  onClick ,
+                onClick =  {
+                    onClick()
+                    editButtonClicked.value = false
+                 },
                 shape = fabShape,
                 backgroundColor = Color(0xFFFF8C00)
             ) {
@@ -183,12 +209,6 @@ fun HomeContent(
                 .padding(it),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            /* CategoryTabs(
-                categories = categories,
-                selectedCategory = selectedCategory.value,
-                onCategorySelected = {e -> selectedCategory.value = e},
-            )*/
-
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier.height(160.dp)) {
@@ -206,7 +226,6 @@ fun HomeContent(
                     modifier = Modifier
                         .fillMaxWidth()
                 ) {
-
                     CategoryTabs(
                         categories = viewState.categories,
                         selectedCategory = selectedCategory.value,
@@ -217,10 +236,20 @@ fun HomeContent(
                         },
                     )
                     if (selectedItem.value.equals("Home")) {
-
-                        TransactionGrid(navController = navController, currentBookletViewModel = viewModel, seletedCategory = selectedCategory.value,moneyState = moneyState)
+                        TransactionGrid(
+                            navController = navController,
+                            currentBookletViewModel = viewModel,
+                            seletedCategory = selectedCategory.value,
+                            moneyState = moneyState)
                     } else {
-                        BookletGrid(navController = navController, seleted = selectedItem, currentBookletViewModel = viewModel, currentNav = currentNav)
+                        BookletGrid(
+                            navController = navController,
+                            seleted = selectedItem,
+                            editButtonClicked = editButtonClicked,
+                            bookletToEdit = bookletToEdit,
+                            onClick = onClick,
+                            currentBookletViewModel = viewModel,
+                            currentNav = currentNav, )
                     }
 
                 }

@@ -25,6 +25,10 @@ class BookletViewModel(private val bookletRepo: BookletRepo = Graph.bookletRepos
         bookletRepo.insert(booklet = booklet)
     }
 
+    suspend fun updateBooklet(booklet: Booklet) {
+        bookletRepo.update(booklet = booklet)
+    }
+
     init {
         viewModelScope.launch {
             bookletRepo.allBooklets().collect {

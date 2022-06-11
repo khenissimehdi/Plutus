@@ -15,4 +15,12 @@ class BookletRepo(private val bookletDao: BookletDao) {
     suspend fun insert(booklet: Booklet) {
         bookletDao.insertBooklet(booklet = booklet);
     }
+
+    @Suppress("RedundantSuspendModifier")
+    @WorkerThread
+    suspend fun update(booklet: Booklet) {
+      bookletDao.updateBooklet(booklet = booklet)
+    }
+
+
 }

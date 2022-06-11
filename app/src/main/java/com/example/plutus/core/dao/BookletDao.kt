@@ -22,4 +22,8 @@ interface BookletDao {
 
     @Query("SELECT * FROM booklet")
     fun getAllBookLet(): Flow<List<Booklet>>
+
+
+    @Update
+    fun updateBooklet(booklet: Booklet)
 }

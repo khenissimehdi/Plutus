@@ -174,11 +174,7 @@ private fun showByCateg(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ShowTransaction(transaction: Transaction, navController: NavController,viewModel: TransactionViewModel = viewModel(),currentBookletViewModel: CurrentBookletViewModel, categModel: CategoryViewModel) {
-
-    val result = remember { mutableStateOf("") }
     val selectedItem = remember { mutableStateOf("upload") }
-
-
     val coroutineScope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
 
