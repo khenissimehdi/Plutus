@@ -15,7 +15,6 @@ import kotlinx.coroutines.runBlocking
 object Graph {
     lateinit var database: PlutusRoomDatabase
 
-
     val categoryRepository by lazy {
         TransactionRepo(
             transactionDao = database.noteDao(),

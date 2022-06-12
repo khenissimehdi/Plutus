@@ -16,8 +16,6 @@ import java.util.*
 
 
 class BitMapUtils {
-
-
     companion object {
         private var cachedFlag: Bitmap? = null
         fun getIcon(context: Context, name: String): Bitmap? {
