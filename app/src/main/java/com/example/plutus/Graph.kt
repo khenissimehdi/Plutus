@@ -11,17 +11,12 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
-/**
- * A simple singleton dependency graph
- *
- * For a real app, please use something like Koin/Dagger/Hilt instead
- */
+
 object Graph {
     lateinit var database: PlutusRoomDatabase
 
 
     val categoryRepository by lazy {
-
         TransactionRepo(
             transactionDao = database.noteDao(),
             possedeCrossRefDao = database.possedeRefDao()
